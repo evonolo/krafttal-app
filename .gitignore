@@ -1,0 +1,9 @@
+# IDE
+.idea/
+
+# Abhängigkeiten und Testartefakte
+node_modules/
+krafttal-app/tests/shots/
+
+# Konzeptstand bleibt team-intern, nicht im Repo
+krafttal-app/docs/konzept.md

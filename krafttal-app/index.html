@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Krafttal Kelchsau</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#F4F5F0; --surface:#FFFFFF; --surface-2:#EBEEE6; --line:#D9DED3;
+  --ink:#1C2620; --ink-2:#4A574F; --muted:#7A867E;
+  --tanne:#2E5B44; --tanne-ink:#FFFFFF; --tanne-soft:#DCE8DF;
+  --laerche:#C07A2B; --laerche-soft:#F5E6D2; --laerche-ink:#5A3610;
+  --ok:#2E7D4F; --warn:#B2621B; --bad:#A63D2F;
+  --shadow:0 12px 40px rgba(28,38,32,.14), 0 1px 0 rgba(28,38,32,.04);
+  --r:14px;
+  --frame:#0F1512;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141A16; --surface:#1D2620; --surface-2:#243029; --line:#33413A;
+    --ink:#EEF2EC; --ink-2:#BFCAC2; --muted:#8B978F;
+    --tanne:#5E9C78; --tanne-ink:#0E1A13; --tanne-soft:#223A2E;
+    --laerche:#D99A4E; --laerche-soft:#3E2E19; --laerche-ink:#F1D7B3;
+    --ok:#6FBE8E; --warn:#D99A4E; --bad:#D9736A;
+    --shadow:0 12px 40px rgba(0,0,0,.5);
+    --frame:#2B3630;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141A16; --surface:#1D2620; --surface-2:#243029; --line:#33413A;
+  --ink:#EEF2EC; --ink-2:#BFCAC2; --muted:#8B978F;
+  --tanne:#5E9C78; --tanne-ink:#0E1A13; --tanne-soft:#223A2E;
+  --laerche:#D99A4E; --laerche-soft:#3E2E19; --laerche-ink:#F1D7B3;
+  --ok:#6FBE8E; --warn:#D99A4E; --bad:#D9736A;
+  --shadow:0 12px 40px rgba(0,0,0,.5);
+  --frame:#2B3630;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink)}
+body{font-family:"Source Sans 3","Segoe UI",system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--laerche);outline-offset:2px}
+h1,h2,h3{margin:0;font-family:"Fraunces",Georgia,serif;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
+p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- Page shell ---------- */
+.stage{min-height:100vh;display:grid;grid-template-columns:1fr;justify-items:center;align-content:start;padding:0}
+.rail{display:none;max-width:320px;color:var(--ink-2);font-size:15px}
+.rail h2{font-size:22px;color:var(--ink);margin-bottom:10px}
+.rail p{margin-bottom:12px}
+.rail .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px}
+.rail ol{margin:0 0 14px;padding-left:20px}
+.rail li{margin-bottom:6px}
+.rail .note{border-left:2px solid var(--laerche);padding-left:12px;color:var(--ink-2)}
+.rail .stamp{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:var(--laerche-soft);color:var(--laerche-ink);padding:3px 8px;border-radius:6px;margin-bottom:14px}
+
+.phone{position:relative;width:100%;max-width:430px;height:100vh;height:100dvh;background:var(--paper);overflow:hidden;display:flex;flex-direction:column}
+@media (min-width:960px){
+  .stage{grid-template-columns:minmax(0,1fr) 430px minmax(0,1fr);align-items:center;gap:0;padding:40px 24px;min-height:100vh}
+  .rail{display:block}
+  .phone{border-radius:44px;box-shadow:var(--shadow);border:10px solid var(--frame);height:min(880px,calc(100vh - 80px))}
+  .rail-l{justify-self:end;padding-right:48px}
+  .rail-r{justify-self:start;padding-left:48px}
+}
+
+/* ---------- App header ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 10px;gap:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mark{width:34px;height:34px;border-radius:10px;background:var(--tanne);display:grid;place-items:center;color:var(--tanne-ink)}
+.brand h1{font-size:20px;line-height:1}
+.brand small{display:block;font-family:"Source Sans 3",sans-serif;font-weight:500;color:var(--muted);font-size:12px;letter-spacing:.05em;text-transform:uppercase;margin-top:3px}
+.iconbtn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--ink-2);position:relative;background:var(--surface);border:1px solid var(--line)}
+.iconbtn .dot{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:var(--laerche);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 5px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--laerche-soft);color:var(--laerche-ink);display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
+.avatar.sm{width:28px;height:28px;font-size:11px}
+.avatar.xs{width:22px;height:22px;font-size:10px;border:2px solid var(--surface)}
+
+/* ---------- Screens ---------- */
+.screens{flex:1;overflow:hidden;position:relative}
+.screen{position:absolute;inset:0;overflow-y:auto;padding:4px 18px 96px;display:none;scrollbar-width:thin}
+.screen.active{display:block}
+.sec{margin-top:18px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.sec-h h2{font-size:19px}
+.sec-h .more{font-size:13px;font-weight:600;color:var(--tanne)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.card + .card{margin-top:10px}
+.card.tap{cursor:pointer;transition:transform .12s ease,border-color .12s}
+.card.tap:hover{border-color:var(--tanne)}
+.card.tap:active{transform:scale(.99)}
+.stack{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:10px}
+.row.wrap{flex-wrap:wrap}
+.between{justify-content:space-between}
+.meta{font-size:13px;color:var(--muted)}
+.title{font-weight:600;font-size:16px;line-height:1.3}
+.body{color:var(--ink-2);font-size:15px;margin-top:4px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--ink-2);letter-spacing:.01em}
+.chip.hilfe{background:var(--laerche-soft);color:var(--laerche-ink)}
+.chip.biete{background:var(--tanne-soft);color:var(--tanne)}
+.chip.hinweis{background:var(--surface-2);color:var(--ink-2)}
+.chip.fund{background:#E4E9F2;color:#33507A}
+:root[data-theme="dark"] .chip.fund{background:#25324A;color:#A9BEE6}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip.fund{background:#25324A;color:#A9BEE6}}
+.chip.status-neu{background:var(--surface-2);color:var(--ink-2)}
+.chip.status-pruef{background:var(--laerche-soft);color:var(--laerche-ink)}
+.chip.status-done{background:var(--tanne-soft);color:var(--tanne)}
+
+.btn{white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;border-radius:12px;font-weight:600;font-size:15px;border:1px solid transparent;transition:background .12s,transform .08s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--tanne);color:var(--tanne-ink)}
+.btn.accent{background:var(--laerche);color:#fff}
+.btn.ghost{background:var(--surface);border-color:var(--line);color:var(--ink)}
+.btn.soft{background:var(--tanne-soft);color:var(--tanne)}
+.btn.block{width:100%}
+.btn.sm{padding:7px 12px;font-size:14px;border-radius:10px}
+.btn[aria-pressed="true"]{background:var(--tanne);color:var(--tanne-ink);border-color:var(--tanne)}
+.btn.danger{background:var(--surface);border-color:var(--line);color:var(--bad)}
+
+.avatars{display:flex}
+.avatars .avatar{margin-left:-6px}
+.avatars .avatar:first-child{margin-left:0}
+
+.hero{background:var(--tanne);color:var(--tanne-ink);border-radius:18px;padding:18px 18px 16px;position:relative;overflow:hidden;margin-top:8px}
+.hero h2{font-size:24px;font-weight:600;line-height:1.15;color:inherit}
+.hero p{opacity:.85;margin-top:6px;font-size:15px;max-width:30ch}
+.hero .ridge{position:absolute;right:-20px;bottom:-24px;width:220px;height:120px;opacity:.22}
+.hero .btn{margin-top:14px;background:var(--paper);color:var(--tanne)}
+
+.pill-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin:0 -18px;padding-left:18px;padding-right:18px}
+.pill-row::-webkit-scrollbar{display:none}
+.pill{flex:none;padding:7px 13px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:14px;font-weight:600;color:var(--ink-2)}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* Events */
+.ev{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:start}
+.date{background:var(--surface-2);border-radius:10px;text-align:center;padding:6px 0 7px;line-height:1}
+.date b{display:block;font-family:"Fraunces",serif;font-size:22px;font-weight:600}
+.date span{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.date.hl{background:var(--laerche-soft)}
+.date.hl b,.date.hl span{color:var(--laerche-ink)}
+
+/* Month grid */
+.cal-head{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.day{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:var(--ink);position:relative;font-variant-numeric:tabular-nums}
+.day.pad{visibility:hidden}
+.day.past{color:var(--muted)}
+.day.today{box-shadow:inset 0 0 0 1.5px var(--laerche)}
+.day.has{font-weight:700;cursor:pointer}
+.day.has:hover{background:var(--surface-2)}
+.day.sel{background:var(--tanne);color:var(--tanne-ink)}
+.day .dots{display:flex;gap:2px;height:5px;margin-top:2px}
+.day .dots i{width:5px;height:5px;border-radius:50%;background:var(--tanne)}
+.day .dots i.fest{background:var(--laerche)}
+.day.sel .dots i{background:var(--tanne-ink)}
+.daybox{margin-top:10px}
+.daybox .meta{margin-bottom:6px}
+.dismissed{opacity:.75}
+.banner{background:var(--surface-2);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink-2);display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
+
+/* Photos + links */
+.photo{position:relative;border-radius:10px;overflow:hidden;aspect-ratio:16/9;margin-top:10px;background:var(--surface-2);color:#fff;display:flex;align-items:flex-end;padding:8px 10px;font-size:12px;font-weight:600;letter-spacing:.02em;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.photo.sm{aspect-ratio:2/1}
+.photo::before{content:"";position:absolute;inset:0;background:var(--ph)}
+.photo::after{content:"";position:absolute;left:-10%;right:-10%;bottom:-6px;height:45%;background:rgba(20,30,24,.35);clip-path:polygon(0 100%,0 70%,12% 40%,24% 62%,38% 22%,52% 55%,64% 30%,78% 58%,90% 38%,100% 60%,100% 100%)}
+.photo span{position:relative}
+.photo .n{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.45);border-radius:6px;padding:2px 7px;font-size:11px}
+.photos{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.photos .photo{margin-top:0;aspect-ratio:4/3}
+.photos .photo:first-child:nth-last-child(1){grid-column:1/-1;aspect-ratio:16/9}
+.linkcard{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:10px;text-decoration:none;color:inherit;background:var(--surface)}
+.linkcard:hover{border-color:var(--tanne)}
+.linkcard .ico{width:36px;height:36px;border-radius:8px;background:var(--tanne-soft);color:var(--tanne);display:grid;place-items:center;flex:none}
+.linkcard .t{min-width:0}
+.linkcard .t b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.linkcard .t span{font-size:12px;color:var(--muted)}
+.body a,.txt a{color:var(--tanne);text-decoration:underline;text-underline-offset:2px;word-break:break-all}
+.picker{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.picker .photo{margin-top:0;aspect-ratio:1;cursor:pointer;font-size:11px;padding:6px}
+.picker .photo[aria-pressed="true"]{outline:3px solid var(--laerche);outline-offset:-3px}
+.picker .photo[aria-pressed="true"] .n{display:block}
+.picker .photo .n{display:none}
+.report{font-size:13px;color:var(--muted);text-decoration:underline;text-underline-offset:2px}
+
+/* Poll */
+.opt{position:relative;border:1px solid var(--line);border-radius:10px;padding:10px 12px;overflow:hidden;cursor:pointer;background:var(--surface)}
+.opt + .opt{margin-top:8px}
+.opt .bar{position:absolute;inset:0;width:0;background:var(--tanne-soft);transition:width .5s ease}
+.opt .lbl{position:relative;display:flex;justify-content:space-between;font-weight:500}
+.opt .lbl .num{color:var(--ink-2)}
+.opt[aria-checked="true"]{border-color:var(--tanne)}
+.opt[aria-checked="true"] .lbl{font-weight:700}
+.opt.locked{cursor:default}
+
+/* Idea */
+.idea{display:grid;grid-template-columns:48px 1fr;gap:12px;align-items:start}
+.vote{border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;align-items:center;padding:6px 0;gap:0;background:var(--surface-2);color:var(--ink-2)}
+.vote b{font-size:15px}
+.vote[aria-pressed="true"]{background:var(--laerche-soft);color:var(--laerche-ink);border-color:var(--laerche)}
+
+/* Lists */
+.list{display:flex;flex-direction:column}
+.item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.item:last-child{border-bottom:0}
+.item .sq{width:44px;height:44px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;color:var(--tanne);flex:none;font-family:"Fraunces",serif;font-weight:600}
+.item .t{flex:1;min-width:0}
+.item .t .title{font-size:15px}
+.item .chev{color:var(--muted)}
+
+/* Forms */
+.field{margin-top:12px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:5px}
+.field input,.field textarea,.field select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit}
+.field textarea{min-height:88px;resize:vertical}
+.hint{font-size:13px;color:var(--muted);margin-top:6px}
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.seg .pill{text-align:center}
+
+/* Detail overlay */
+.sheet{position:absolute;inset:0;background:var(--paper);transform:translateX(100%);transition:transform .22s ease;display:flex;flex-direction:column;z-index:5}
+.sheet.open{transform:none}
+.sheet .bar-top{display:flex;align-items:center;gap:8px;padding:12px 12px 8px}
+.sheet .bar-top h2{font-size:17px;flex:1;text-align:center;padding-right:40px}
+.sheet .content{flex:1;overflow-y:auto;padding:4px 18px 110px}
+.sheet .foot{position:absolute;left:0;right:0;bottom:0;padding:12px 18px 20px;background:linear-gradient(to top,var(--paper) 70%,transparent);display:flex;gap:8px}
+.sheet .foot input{flex:1;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit}
+.comment{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.comment:last-child{border-bottom:0}
+.comment .who{font-weight:600;font-size:14px}
+.comment .txt{color:var(--ink-2);font-size:15px}
+.comment .meta{margin-left:6px}
+@media (prefers-reduced-motion: reduce){.sheet,.opt .bar,.card.tap{transition:none}}
+
+/* Toggle */
+.tog{width:46px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:none;transition:background .15s}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.tog[aria-checked="true"]{background:var(--tanne)}
+.tog[aria-checked="true"]::after{transform:translateX(18px)}
+
+/* Tab bar */
+.tabs{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 6px calc(10px + env(safe-area-inset-bottom));z-index:4}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border-radius:12px;color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.01em}
+.tab svg{width:24px;height:24px}
+.tab[aria-selected="true"]{color:var(--tanne)}
+.tab .cnt{position:absolute;margin-left:22px;margin-top:-2px;background:var(--laerche);color:#fff;font-size:10px;font-weight:700;border-radius:8px;padding:1px 5px}
+
+/* FAB */
+.fab{position:absolute;right:18px;bottom:84px;width:52px;height:52px;border-radius:16px;background:var(--laerche);color:#fff;display:grid;place-items:center;box-shadow:0 8px 20px rgba(192,122,43,.4);z-index:4}
+
+/* Toast + push */
+.toast{position:absolute;left:18px;right:84px;bottom:96px;background:var(--ink);color:var(--paper);padding:12px 14px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;transform:translateY(8px);transition:.2s;z-index:9;pointer-events:none}
+.toast.show{opacity:1;transform:none}
+.push{position:absolute;left:12px;right:12px;top:10px;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;gap:10px;box-shadow:var(--shadow);transform:translateY(-140%);transition:transform .3s cubic-bezier(.2,.8,.2,1);z-index:10}
+.push.show{transform:none}
+.push .mark{width:34px;height:34px;border-radius:9px;background:var(--tanne);color:var(--tanne-ink);display:grid;place-items:center;flex:none}
+.push .t b{display:block;font-size:14px}
+.push .t span{font-size:14px;color:var(--ink-2)}
+.push .t small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+
+/* Onboarding */
+.onb{position:absolute;inset:0;background:var(--paper);z-index:20;display:flex;flex-direction:column;overflow-y:auto;padding:0 22px 28px}
+.onb.hidden{display:none}
+.onb .sky{margin:0 -22px;height:220px;background:var(--tanne);position:relative;overflow:hidden;color:var(--tanne-ink);display:flex;align-items:flex-end;padding:0 22px 18px}
+.onb .sky svg{position:absolute;inset:auto 0 0 0;width:100%;height:110px;opacity:.28}
+.onb .sky h1{font-size:34px;font-weight:600;line-height:1.05;position:relative}
+.onb .sky small{display:block;font-family:"Source Sans 3",sans-serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;opacity:.8;margin-bottom:8px}
+.onb h2{font-size:22px;margin-top:22px}
+.onb .lead{color:var(--ink-2);margin-top:8px;font-size:16px;max-width:36ch}
+.onb .step{display:none}
+.onb .step.active{display:block}
+.wait{margin-top:26px;text-align:center}
+.wait .ring{width:64px;height:64px;border-radius:50%;border:3px solid var(--laerche-soft);border-top-color:var(--laerche);margin:0 auto 16px;animation:spin 1.6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.wait .ring{animation:none}}
+.link{color:var(--tanne);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+
+/* Admin */
+.pend{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+.pend:last-child{border-bottom:0}
+.pend .t{flex:1}
+.pend .acts{display:flex;gap:6px;margin-top:8px}
+
+.empty{padding:26px 10px;text-align:center;color:var(--muted);font-size:14px}
+.divider{height:1px;background:var(--line);margin:16px 0}
+.kv{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+.kv:last-child{border-bottom:0}
+.kv span:last-child{color:var(--ink-2)}
+.infobtn{width:40px;height:40px;border-radius:12px;background:var(--surface);border:1px solid var(--line);color:var(--ink-2);display:grid;place-items:center;font-family:"Fraunces",serif;font-weight:700;font-size:17px}
+.onb .infobtn{position:absolute;right:16px;top:16px;background:rgba(255,255,255,.18);border-color:transparent;color:inherit}
+@media (min-width:960px){.infobtn{display:none}}
+.infosheet{position:absolute;inset:0;z-index:40;background:var(--paper);padding:22px;overflow-y:auto;display:none}
+.infosheet.open{display:block}
+.infosheet .rail{display:block;max-width:none}
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <aside class="rail rail-l">
+    <span class="stamp">Prototyp · Beispieldaten</span>
+    <h2>Krafttal-App für Kelchsau</h2>
+    <p>Eine App für die Leute, die hier wohnen. Nicht für Gäste, nicht öffentlich. Wer rein will, meldet sich an und wird vom Krafttal-Team freigeschaltet.</p>
+    <p class="eyebrow">Was drin ist</p>
+    <p>Anliegen mit Fotos und Links einstellen, zusagen oder absagen. Kalender mit Veranstaltungen der Vereine. Vereine und Betriebe stellen sich vor. Umfragen und Abstimmungen. Ideen einreichen. Mitteilungen aufs Handy.</p>
+    <p class="note">Alles, was du hier siehst, ist ausgedacht oder von krafttal.at übernommen. Klicks werden nicht gespeichert; nach dem Neuladen ist alles wieder wie am Anfang.</p>
+  </aside>
+
+  <div class="phone" id="phone">
+    <div class="infosheet" id="infosheet">
+      <aside class="rail">
+        <span class="stamp">Prototyp · Beispieldaten</span>
+        <h2>Krafttal-App für Kelchsau</h2>
+        <p>Eine App für die Leute, die hier wohnen. Nicht für Gäste, nicht öffentlich. Wer rein will, meldet sich an und wird vom Krafttal-Team freigeschaltet.</p>
+        <p class="eyebrow">Zum Durchklicken</p>
+        <ol>
+          <li>Registrieren, Warteschleife ansehen, dann als Demo-Nutzerin weiter.</li>
+          <li>Unter „Anliegen“ zusagen, absagen, unter „Abgelehnt“ nachschauen.</li>
+          <li>Im Kalender auf den 26. tippen: zwei Termine, Almabtrieb öffnen, „Ich komme“ drücken.</li>
+          <li>Unter „Mitreden“ abstimmen und einer Idee eine Stimme geben.</li>
+          <li>Unter „Dorf“ einem Verein beitreten und danach in dessen Namen posten.</li>
+          <li>Oben rechts aufs Profil: Mitteilungen testen, Freischaltungen erledigen.</li>
+        </ol>
+        <p class="note">Alles ausgedacht oder von krafttal.at übernommen. Nichts wird gespeichert.</p>
+        <button class="btn primary block" id="infoclose" style="margin-top:16px">Zurück zur App</button>
+      </aside>
+    </div>
+
+    <!-- Push banner -->
+    <div class="push" id="push" role="status">
+      <div class="mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-11 4 6 3-4 5 9z"/></svg></div>
+      <div class="t"><b>Krafttal Kelchsau</b><span id="pushtext">Almabtrieb: Treffpunkt wegen Regen um eine Stunde verschoben.</span><small>jetzt</small></div>
+    </div>
+
+    <!-- Onboarding -->
+    <div class="onb" id="onb">
+      <div class="sky">
+        <button class="infobtn" data-info aria-label="Über diesen Prototyp">i</button>
+        <svg viewBox="0 0 430 110" preserveAspectRatio="none" aria-hidden="true"><path d="M0 110 L0 78 L60 40 L110 66 L170 18 L230 60 L290 30 L350 70 L400 44 L430 62 L430 110 Z" fill="currentColor"/><path d="M0 110 L0 96 L70 74 L140 92 L210 66 L280 88 L350 72 L430 90 L430 110 Z" fill="currentColor"/></svg>
+        <h1><small>Kelchsau</small>Krafttal</h1>
+      </div>
+
+      <div class="step active" id="step-start">
+        <h2>Für alle, die hier daheim sind</h2>
+        <p class="lead">Anliegen, Termine, Vereine, Abstimmungen. Eine App fürs Tal, ohne Werbung und ohne Fremde.</p>
+        <div class="stack" style="margin-top:22px">
+          <button class="btn primary block" data-go="step-reg">Ich bin neu hier</button>
+          <button class="btn ghost block" id="loginBtn">Schon freigeschaltet? Anmelden</button>
+        </div>
+        <p class="hint" style="margin-top:14px">Zugang bekommt, wer in der Kelchsau wohnt oder hier einen Betrieb hat. Das Krafttal-Team prüft jede Anmeldung von Hand.</p>
+      </div>
+
+      <div class="step" id="step-reg">
+        <h2>Anmeldung</h2>
+        <p class="lead">Ein paar Angaben, damit wir wissen, wer du bist.</p>
+        <div class="field"><label for="f-name">Vor- und Nachname</label><input id="f-name" placeholder="Maria Hauser"></div>
+        <div class="field"><label for="f-adr">Adresse in der Kelchsau</label><input id="f-adr" placeholder="Kelchsau 42"></div>
+        <div class="field"><label for="f-tel">Handynummer</label><input id="f-tel" inputmode="tel" placeholder="+43 664 …"><p class="hint">Nur fürs Freischalten. Steht später nicht in der App.</p></div>
+        <div class="field"><label>Ich bin hier</label>
+          <div class="seg">
+            <button class="pill" aria-pressed="true">Einwohner:in</button>
+            <button class="pill" aria-pressed="false">Betrieb</button>
+            <button class="pill" aria-pressed="false">Verein</button>
+            <button class="pill" aria-pressed="false">Zweitwohnsitz</button>
+          </div>
+        </div>
+        <div class="field"><label for="f-wer">Wer aus dem Tal kennt dich? <span style="font-weight:400;color:var(--muted)">(optional, hilft beim Freischalten)</span></label><input id="f-wer" placeholder="z. B. Sepp vom Fuchswirt"></div>
+        <button class="btn primary block" style="margin-top:20px" data-go="step-wait">Anmeldung abschicken</button>
+        <p class="hint" style="margin-top:12px;text-align:center"><button class="link" data-go="step-start">Zurück</button></p>
+      </div>
+
+      <div class="step" id="step-wait">
+        <div class="wait">
+          <div class="ring" aria-hidden="true"></div>
+          <h2>Danke, <span id="wait-name">Maria</span>.</h2>
+          <p class="lead" style="margin:10px auto 0">Jemand vom Krafttal-Team schaut sich deine Anmeldung an und schaltet dich frei. Meistens dauert das keinen Tag. Du bekommst eine SMS, sobald es so weit ist.</p>
+        </div>
+        <div class="card" style="margin-top:24px">
+          <p class="meta" style="margin-bottom:6px">Solange du wartest</p>
+          <p class="body">Du kannst den öffentlichen Kalender schon sehen. Beiträge schreiben, zusagen und abstimmen geht erst nach der Freischaltung.</p>
+        </div>
+        <button class="btn accent block" style="margin-top:20px" id="demoBtn">Demo: Ich wurde freigeschaltet</button>
+        <p class="hint" style="margin-top:10px;text-align:center">Im echten Betrieb passiert das durch das Team, nicht durch einen Knopf.</p>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header class="top">
+      <div class="brand">
+        <div class="mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-11 4 6 3-4 5 9z"/></svg></div>
+        <h1>Krafttal<small>Kelchsau</small></h1>
+      </div>
+      <div class="row">
+        <button class="infobtn" data-info aria-label="Über diesen Prototyp">i</button>
+        <button class="iconbtn" id="bellBtn" aria-label="Mitteilungen"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg><span class="dot" id="bellDot">3</span></button>
+        <button class="avatar" id="meBtn" aria-label="Mein Profil">MH</button>
+      </div>
+    </header>
+
+    <div class="screens">
+      <!-- HEUTE -->
+      <section class="screen active" id="s-heute">
+        <div class="hero">
+          <p class="meta" style="color:inherit;opacity:.8">Montag, 31. August</p>
+          <h2>Servus Maria, drei Sachen fürs Tal.</h2>
+          <p>Beim Hoamfohrfest fehlen noch Leute fürs Aufbauen, und eine Abstimmung läuft bis Sonntag.</p>
+          <button class="btn sm" data-tab="anliegen">Anliegen ansehen</button>
+          <svg class="ridge" viewBox="0 0 220 120" aria-hidden="true"><path d="M0 120 L0 90 L40 50 L80 80 L120 30 L160 70 L200 45 L220 60 L220 120 Z" fill="currentColor"/></svg>
+        </div>
+
+        <div class="sec" id="pushPrompt">
+          <div class="card row between">
+            <div><p class="title" style="font-size:15px">Mitteilungen aufs Handy?</p><p class="meta">Nur bei Wichtigem: Absagen, Zusagen auf deine Anliegen, Abstimmungen.</p></div>
+            <button class="btn sm primary" id="enablePush">Einschalten</button>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><h2>Demnächst</h2><button class="more" data-tab="kalender">Kalender</button></div>
+          <div class="stack" id="heute-events"></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><h2>Offene Anliegen</h2><button class="more" data-tab="anliegen">Alle</button></div>
+          <div class="stack" id="heute-anliegen"></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><h2>Läuft gerade</h2><button class="more" data-tab="mitreden">Mitreden</button></div>
+          <div class="card" id="heute-poll"></div>
+        </div>
+      </section>
+
+      <!-- ANLIEGEN -->
+      <section class="screen" id="s-anliegen">
+        <div class="sec">
+          <div class="sec-h"><h2>Anliegen</h2><span class="meta num" id="anl-count"></span></div>
+          <div class="pill-row" id="anl-filter">
+            <button class="pill" aria-pressed="true" data-f="alle">Alle</button>
+            <button class="pill" aria-pressed="false" data-f="hilfe">Hilfe gesucht</button>
+            <button class="pill" aria-pressed="false" data-f="biete">Biete</button>
+            <button class="pill" aria-pressed="false" data-f="hinweis">Hinweis</button>
+            <button class="pill" aria-pressed="false" data-f="fund">Verloren / Gefunden</button>
+            <button class="pill" aria-pressed="false" data-f="abgelehnt">Abgelehnt <span class="num" id="decl-count"></span></button>
+          </div>
+          <div class="stack" id="anl-list" style="margin-top:12px"></div>
+        </div>
+      </section>
+
+      <!-- KALENDER -->
+      <section class="screen" id="s-kalender">
+        <div class="sec">
+          <div class="sec-h"><h2>Kalender</h2>
+            <span class="row" style="gap:4px"><button class="iconbtn" style="width:32px;height:32px" id="mPrev" aria-label="Voriger Monat">‹</button><span class="meta" id="mLabel" style="min-width:110px;text-align:center"></span><button class="iconbtn" style="width:32px;height:32px" id="mNext" aria-label="Nächster Monat">›</button></span>
+          </div>
+          <div class="card" style="padding:10px 8px 8px">
+            <div class="cal-head"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
+            <div class="cal-grid" id="calGrid"></div>
+          </div>
+          <div id="dayBox"></div>
+        </div>
+        <div class="sec">
+          <div class="sec-h"><h2 style="font-size:17px">Alle Termine</h2><button class="more" data-toast="Im echten Betrieb: Formular für Vereine und Betriebe, das Team schaltet frei.">Termin eintragen</button></div>
+          <div class="pill-row" id="kal-filter">
+            <button class="pill" aria-pressed="true" data-f="alle">Alles</button>
+            <button class="pill" aria-pressed="false" data-f="fest">Feste</button>
+            <button class="pill" aria-pressed="false" data-f="verein">Vereine</button>
+            <button class="pill" aria-pressed="false" data-f="gemeinde">Gemeinde</button>
+            <button class="pill" aria-pressed="false" data-f="kurs">Kurse</button>
+          </div>
+          <div class="stack" id="kal-list" style="margin-top:12px"></div>
+        </div>
+      </section>
+
+      <!-- DORF -->
+      <section class="screen" id="s-dorf">
+        <div class="sec">
+          <div class="sec-h"><h2>Vereine</h2><span class="meta num">8</span></div>
+          <div class="card list" id="verein-list"></div>
+        </div>
+        <div class="sec">
+          <div class="sec-h"><h2>Betriebe</h2><span class="meta num">9</span></div>
+          <div class="card list" id="betrieb-list"></div>
+        </div>
+        <div class="sec">
+          <div class="card">
+            <p class="title" style="font-size:15px">Dein Verein oder Betrieb fehlt?</p>
+            <p class="body">Eine kurze Vorstellung, ein Foto, Kontakt. Das Krafttal-Team schaltet den Eintrag frei.</p>
+            <button class="btn soft sm" style="margin-top:10px" data-toast="Im echten Betrieb öffnet sich hier ein Formular.">Eintrag vorschlagen</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- MITREDEN -->
+      <section class="screen" id="s-mitreden">
+        <div class="sec">
+          <div class="sec-h"><h2>Abstimmungen</h2><span class="meta">2 offen</span></div>
+          <div class="stack" id="poll-list"></div>
+        </div>
+        <div class="sec">
+          <div class="sec-h"><h2>Ideen fürs Tal</h2><button class="more" data-toast="Im echten Betrieb: kurzes Formular, dann prüft das Team.">Idee einreichen</button></div>
+          <p class="meta" style="margin:-4px 0 10px">Was dir hier fehlt oder besser gehen könnte. Das Team antwortet auf jede Idee.</p>
+          <div class="stack" id="idea-list"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Detail sheets -->
+    <div class="sheet" id="sheet">
+      <div class="bar-top">
+        <button class="iconbtn" data-close aria-label="Zurück"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <h2 id="sheet-title"></h2>
+      </div>
+      <div class="content" id="sheet-content"></div>
+      <div class="foot" id="sheet-foot" hidden>
+        <input id="cmt-in" placeholder="Kommentar schreiben …" aria-label="Kommentar">
+        <button class="btn primary" id="cmt-send">Senden</button>
+      </div>
+    </div>
+
+    <button class="fab" id="fab" aria-label="Neues Anliegen"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="heute"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Heute</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="anliegen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11V7a5 5 0 0 1 10 0v4"/><path d="M5 11h14l-1 9H6z"/></svg>Anliegen<span class="cnt" id="anl-badge">4</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="kalender"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Kalender</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="dorf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5a5 5 0 0 1 6 5.5"/></svg>Dorf</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="mitreden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/></svg>Mitreden</button>
+    </nav>
+
+    <div class="toast" id="toast" role="status"></div>
+  </div>
+
+  <aside class="rail rail-r">
+    <p class="eyebrow">Zum Durchklicken</p>
+    <ol>
+      <li>Registrieren, Warteschleife ansehen, dann als Demo-Nutzerin weiter.</li>
+      <li>Unter „Anliegen“ bei der Heuernte zusagen, beim Kuchenbacken absagen und unter „Abgelehnt“ nachschauen.</li>
+      <li>Im Kalender auf den 26. tippen: zwei Termine, Almabtrieb öffnen, „Ich komme“ drücken.</li>
+      <li>Unter „Mitreden“ abstimmen und einer Idee eine Stimme geben.</li>
+      <li>Unter „Dorf“ bei der Musikkapelle „Mitglied werden“, Bestätigung durchspielen, dann „Beitrag als Bundesmusikkapelle“.</li>
+      <li>Oben rechts aufs Profil: Mitteilungen testen, zwei Freischaltungen erledigen.</li>
+    </ol>
+    <p class="eyebrow">Noch offen</p>
+    <p>Wer moderiert, wenn ein Beitrag daneben ist? Dürfen Zweitwohnsitzer rein? Braucht es Ortsteile oder reicht das ganze Tal? Wer trägt Hosting und Datenschutz, Verein oder Gemeinde?</p>
+  </aside>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ini=n=>n.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+
+/* ---------- Data (Beispieldaten) ---------- */
+const me={name:'Maria Hauser',ini:'MH'};
+const state={pushOn:false,filterA:'alle',filterK:'alle',month:8,selDay:null};
+
+const anliegen=[
+ {id:1,cat:'hilfe',by:'Bundesmusikkapelle Kelchsau',when:'vor 2 Std.',title:'Aufbau fürs Hoamfohrfest am Freitag',
+  text:'Wir stellen am Freitag ab 14 Uhr das Festzelt am Dorfplatz auf. Wer zwei Stunden Zeit hat und zupacken kann: bitte zusagen. Jause gibt es danach.',
+  need:8,declined:false,imgs:[['zelt','Festzelt am Dorfplatz, 2025'],['zelt','Aufbauplan']],link:{url:'https://krafttal.at/hoamfohrfest',title:'Programm Hoamfohrfest 2026'},in:['Sepp Kruckenhauser','Hannes Rieder','Lisa Astner'],
+  comments:[{who:'Hannes Rieder',t:'Ich bring den Anhänger mit.',when:'vor 1 Std.'},{who:'Bundesmusikkapelle Kelchsau',t:'Super, danke Hannes.',when:'vor 40 Min.'}]},
+ {id:2,cat:'hilfe',by:'Familie Eder, Oberkelchsau',when:'gestern',title:'Heuernte, zwei Leute für Samstagvormittag',
+  text:'Das Wetter passt am Samstag, uns fehlen zwei Leute zum Einfahren. Ab 8 Uhr, Mittagessen inklusive. Traktorführerschein wäre gut, muss aber nicht.',
+  need:2,declined:false,imgs:[['heu','Wiese hinterm Hof, Oberkelchsau']],in:['Toni Fuchs'],comments:[]},
+ {id:3,cat:'biete',by:'Sepp Kruckenhauser',when:'gestern',title:'Fahrgemeinschaft nach Wörgl, Mo/Mi/Fr',
+  text:'Ich fahre Montag, Mittwoch und Freitag um 6:40 nach Wörgl und bin gegen 17 Uhr retour. Zwei Plätze frei.',
+  need:2,declined:false,in:[],comments:[{who:'Lisa Astner',t:'Mittwoch wäre ich dabei, meld mich per Nachricht.',when:'vor 5 Std.'}]},
+ {id:4,cat:'hinweis',by:'Gemeinde Hopfgarten',when:'vor 3 Tagen',title:'Kelchsauer Landesstraße: Halbseitig gesperrt bis 12. September',
+  text:'Wegen Sanierung der Stützmauer bei km 4,2 wird die Straße werktags zwischen 8 und 16 Uhr per Ampel geregelt. Rettung und Linienbus sind informiert. Details: www.hopfgarten.tirol.gv.at/strassen',
+  imgs:[['strasse','Baustelle km 4,2']],
+  need:0,declined:false,in:[],comments:[{who:'Toni Fuchs',t:'Heute Früh ca. 5 Minuten Wartezeit.',when:'vor 2 Tagen'}]},
+ {id:5,cat:'fund',by:'Anna Wurzrainer',when:'vor 4 Tagen',title:'Schlüsselbund mit rotem Anhänger gefunden',
+  text:'Lag beim Parkplatz Wegscheid. Ist beim Spar an der Kassa hinterlegt.',imgs:[['schluessel','Schlüsselbund, roter Anhänger']],
+  need:0,declined:false,in:[],comments:[]},
+ {id:6,cat:'hilfe',by:'Sportverein Kelchsau',when:'vor 5 Tagen',title:'Kuchen fürs Fußballturnier am 13.9.',
+  text:'Für die Kuchentheke beim Nachwuchsturnier suchen wir noch sechs Kuchen. Abgabe Samstag bis 10 Uhr am Sportplatz.',link:{url:'https://sv-kelchsau.at/turnier',title:'Spielplan Nachwuchsturnier'},
+  need:6,declined:false,in:['Anna Wurzrainer','Lisa Astner','Maria Hauser','Toni Fuchs'],comments:[]},
+ {id:7,cat:'hilfe',by:'Landjugend Kelchsau',when:'vor 6 Tagen',title:'Erntekrone binden, Samstag 3.10. ab 9 Uhr',
+  text:'Wir binden die Erntekrone fürs Erntedankfest im Stadel beim Eder. Wer Zeit hat, kommt einfach vorbei.',
+  need:5,declined:true,in:['Lisa Astner'],comments:[]}
+];
+const tones={
+ zelt:'linear-gradient(160deg,#6E8F6B 0%,#3E5F45 55%,#2A3F31 100%)',
+ heu:'linear-gradient(160deg,#E4C67A 0%,#B98A3C 50%,#6E4F1F 100%)',
+ alm:'linear-gradient(160deg,#9CC4D9 0%,#5A8A6A 55%,#2E4A38 100%)',
+ strasse:'linear-gradient(160deg,#9AA3A0 0%,#5E6B66 55%,#333D38 100%)',
+ schluessel:'linear-gradient(160deg,#C9C2B0 0%,#8D8574 60%,#4F4A3F 100%)',
+ kuchen:'linear-gradient(160deg,#E8B98A 0%,#B76F45 55%,#6B3C22 100%)',
+ kirche:'linear-gradient(160deg,#D9D4E8 0%,#7F7A9E 55%,#3E3B55 100%)'};
+const photo=(ph,label,cls='')=>`<div class="photo ${cls}" style="--ph:${tones[ph]}" role="img" aria-label="${esc(label)}"><span>${esc(label)}</span></div>`;
+const linkify=t=>esc(t).replace(/(https?:\/\/[^\s<]+|www\.[^\s<]+)/g,u=>`<a href="${u.startsWith('http')?u:'https://'+u}" target="_blank" rel="noopener">${u}</a>`);
+const linkCard=l=>`<a class="linkcard" href="${esc(l.url)}" target="_blank" rel="noopener"><span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span><span class="t"><b>${esc(l.title)}</b><span>${esc(l.url.replace(/^https?:\/\//,'').split('/')[0])}</span></span></a>`;
+const catName={hilfe:'Hilfe gesucht',biete:'Biete',hinweis:'Hinweis',fund:'Verloren / Gefunden'};
+
+const events=[
+ {id:1,d:5,mi:8,m:'Sep',wd:'Fr',cat:'fest',title:'Hoamfohrfest der Musikkapelle',where:'Dorfplatz Kelchsau',time:'ab 18 Uhr',by:'Bundesmusikkapelle',going:41,hl:false,
+  text:'Frühschoppen am Samstag, Festbetrieb ab Freitagabend. Zeltaufbau am Freitag ab 14 Uhr, dafür läuft ein eigenes Anliegen.'},
+ {id:2,d:9,mi:8,m:'Sep',wd:'Mi',cat:'verein',title:'Probe Bundesmusikkapelle',where:'Musikheim',time:'20:00',by:'Bundesmusikkapelle',going:0,rep:'jeden Mittwoch',text:'Wöchentliche Probe. Neue Musikantinnen und Musikanten sind willkommen, einfach vorbeikommen.'},
+ {id:3,d:11,mi:8,m:'Sep',wd:'Fr',cat:'gemeinde',title:'Sprechstunde Bürgermeister in der Kelchsau',where:'Gemeindestube, Volksschule',time:'16–18 Uhr',by:'Gemeinde Hopfgarten',going:0,text:'Ohne Anmeldung. Anliegen zur Straßensanierung werden direkt besprochen.'},
+ {id:4,d:13,mi:8,m:'Sep',wd:'Sa',cat:'verein',title:'Nachwuchsturnier Fußball',where:'Sportplatz',time:'9–16 Uhr',by:'Sportverein Kelchsau',going:23,text:'U8 bis U12, sechs Mannschaften aus dem Brixental. Kuchentheke und Grill.'},
+ {id:5,d:17,mi:8,m:'Sep',wd:'Do',cat:'kurs',title:'Achtsamkeit am Wasser, Themenweg 5 Elemente',where:'Treffpunkt Fuchswirt',time:'17:00',by:'Krafttal Kelchsau',going:7,text:'Geführte Runde über den Themenweg, etwa 90 Minuten, festes Schuhwerk.'},
+ {id:6,d:26,mi:8,m:'Sep',wd:'Sa',cat:'fest',title:'Almabtrieb & Hoamfohrfest',where:'Ortszentrum',time:'ab 11 Uhr',by:'Krafttal Kelchsau',going:128,hl:true,
+  text:'Die Kühe kommen von der Niederkaseralm und der Bamberger Hütte herunter. Festbetrieb im Ort, Musik, regionale Küche. Parken bitte beim Sportplatz, im Ort ist ab 10 Uhr gesperrt.'},
+ {id:11,d:26,mi:8,m:'Sep',wd:'Sa',cat:'verein',title:'Ringer: Auswärtskampf in Inzing, Fanbus',where:'Abfahrt Sportplatz',time:'16:00',by:'Ringerverein',going:9,text:'Fanbus zum Auswärtskampf, Rückfahrt gegen 23 Uhr. Anmeldung über die Zusage hier.'},
+ {id:7,d:3,mi:9,m:'Okt',wd:'Sa',cat:'verein',title:'Ringer: Heimkampf gegen Inzing',where:'Turnhalle',time:'19:30',by:'Ringerverein',going:12,text:'Bundesliga-Heimkampf. Kantine ab 18 Uhr.'},
+ {id:8,d:4,mi:9,m:'Okt',wd:'So',cat:'fest',title:'Erntedank mit Frühschoppen',where:'Kirche, danach Fuchswirt',time:'9:30',by:'Pfarre und Landjugend',going:34,text:'Messe um 9:30, anschließend Frühschoppen. Die Erntekrone bindet die Landjugend am Samstag davor.'},
+ {id:9,d:13,mi:9,m:'Okt',wd:'Di',cat:'gemeinde',title:'Bauausschuss: Kinderspielplatz',where:'Gemeindeamt Hopfgarten',time:'19:00',by:'Gemeinde Hopfgarten',going:0,text:'Ergebnis der Abstimmung zum Standort wird vorgelegt. Öffentlich, Zuhörer willkommen.'},
+ {id:10,d:24,mi:9,m:'Okt',wd:'Sa',cat:'verein',title:'Herbstkonzert Kirchenchor',where:'Pfarrkirche',time:'19:30',by:'Kirchenchor Kelchsau',going:18,text:'Chormusik aus drei Jahrhunderten, freiwillige Spenden.'}
+];
+const catK={fest:'Fest',verein:'Verein',gemeinde:'Gemeinde',kurs:'Kurs'};
+
+const vereine=[
+ {k:'BM',name:'Bundesmusikkapelle Kelchsau',sub:'52 Mitglieder · Probe Mi 20 Uhr',text:'Gegründet vor über hundert Jahren, heute mit Jugendkapelle. Spielt bei Kirchenfesten, Konzerten und dem Hoamfohrfest.',kontakt:'Obmann Hannes Rieder',admin:'Hannes Rieder',n:52,me:'none',posters:['Hannes Rieder (Obmann)','Sepp Kruckenhauser (Schriftführer)']},
+ {k:'SV',name:'Sportverein Kelchsau',sub:'Fußball · Tennis · Nachwuchs',text:'Fußball in der Bezirksliga, Tennisplätze am Sportgelände, Nachwuchsbetrieb von U8 bis U16.',kontakt:'Obfrau Lisa Astner',admin:'Lisa Astner',n:140,me:'none',posters:['Lisa Astner (Obfrau)','Toni Fuchs (Nachwuchs)']},
+ {k:'RV',name:'Ringerverein Kelchsau',sub:'Bundesliga · Training Di & Do',text:'Einer der bekanntesten Vereine im Tal. Training für Kinder ab 6 Jahren dienstags um 17 Uhr.',kontakt:'Trainer Toni Fuchs',admin:'Toni Fuchs',n:64,me:'none',posters:['Toni Fuchs (Trainer)']},
+ {k:'WSV',name:'Ski- & Wintersportverein',sub:'Rennlauf · Skitouren · Kinderskikurs',text:'Kinderskikurse in den Weihnachtsferien, Vereinsrennen im Februar, Tourengruppe im Winter.',kontakt:'Sepp Kruckenhauser',admin:'Sepp Kruckenhauser',n:88,me:'none',posters:['Sepp Kruckenhauser (Obmann)']},
+ {k:'K',name:'Kirchenchor Kelchsau',sub:'Gesang · Probe Do 19:30',text:'Einer von vier Gesangsvereinen im Tal. Gestaltet Messen und das Adventsingen.',kontakt:'Chorleitung Anna Wurzrainer',admin:'Anna Wurzrainer',n:23,me:'member',posters:['Anna Wurzrainer (Chorleitung)','Maria Hauser (du)']},
+ {k:'FF',name:'Freiwillige Feuerwehr Kelchsau',sub:'Einsatz · Jugendfeuerwehr',text:'Zuständig fürs ganze Tal bis zur Bamberger Hütte. Jugendfeuerwehr ab 10 Jahren.',kontakt:'Kommandant',admin:'Kommandant',n:47,me:'none',posters:['Kommandant','Schriftführer']},
+ {k:'LJ',name:'Landjugend Kelchsau',sub:'Jugend · Brauchtum',text:'Organisiert das Maibaumaufstellen und hilft bei Festen im Tal mit.',kontakt:'Obmann',admin:'Obmann Landjugend',n:31,me:'none',posters:['Obmann','Obfrau-Stellvertreterin']},
+ {k:'KT',name:'Krafttal Kelchsau',sub:'Initiative · Themenweg · Kurse',text:'Die Initiative hinter dieser App. Themenweg 5 Elemente, Kinderweg, Kurse und Workshops.',kontakt:'krafttal.at',admin:'Krafttal-Team',n:12,me:'none',posters:['Krafttal-Team']}
+];
+const betriebe=[
+ {k:'F',name:'Fuchswirt',sub:'Gasthof · Zimmer',kurz:'Gasthof im Ortszentrum mit Tiroler Küche, Mittagsmenü unter der Woche, 14 Zimmer.',text:'Familienbetrieb in dritter Generation. Stube für bis zu 60 Personen, Vereinsabende und Feiern nach Vereinbarung. Ruhetag Dienstag.',web:'fuchswirt-kelchsau.at',tel:'+43 5335 8xxx',mail:'info@fuchswirt-kelchsau.at',adr:'Kelchsau 15',hours:'Mi–Mo 10–22 Uhr, Küche bis 21 Uhr',me:'none',admin:'Familie Fuchs',posters:['Toni Fuchs (Inhaber)']},
+ {k:'M',name:'Moderstock',sub:'Gasthof · Kegelbahn',kurz:'Gasthof mit zwei Kegelbahnen, Gastgarten und Hausmannskost.',text:'Kegelbahnen für Vereine und Firmen reservierbar. Sonntags Braten ab 11:30.',web:'moderstock.at',tel:'+43 5335 8xxx',mail:'gasthof@moderstock.at',adr:'Kelchsau 61',hours:'Do–Di ab 10 Uhr, Ruhetag Mittwoch',me:'none',admin:'Familie Moderstock',posters:['Inhaberin']},
+ {k:'S',name:'Spar Kelchsau',sub:'Nahversorger · Post-Partner',kurz:'Lebensmittel, Backwaren aus der Region, Post-Partner, Abholstelle für Fundsachen.',text:'Einziger Nahversorger im Tal. Bestellungen fürs Wochenende bis Donnerstag. Zustellung für ältere Leute nach Absprache.',web:'spar.at',tel:'+43 5335 8xxx',mail:'kelchsau@spar-kaufmann.at',adr:'Kelchsau 40',hours:'Mo–Fr 7–18, Sa 7–12 Uhr',me:'none',admin:'Kaufmannsfamilie',posters:['Filialleitung']},
+ {k:'Z',name:'Zimmerei Kelchsau',sub:'Holzbau · Dachstühle',kurz:'Holzbau, Dachstühle, Sanierung und Balkone im Tal und im Brixental.',text:'Sechs Mitarbeiter, eigene Abbundhalle. Bildet Zimmerer-Lehrlinge aus, Bewerbungen jederzeit.',web:'zimmerei-kelchsau.at',tel:'+43 5335 8xxx',mail:'office@zimmerei-kelchsau.at',adr:'Kelchsau 88',hours:'Mo–Fr 7–17 Uhr',me:'none',admin:'Inhaber',posters:['Inhaber','Büro']},
+ {k:'A',name:'Autowerkstatt Kelchsau',sub:'Service · Reifen · §57a',kurz:'Freie Werkstatt für alle Marken, Pickerl, Reifen, Klimaservice.',text:'Ersatzauto nach Vereinbarung. Winterreifen-Einlagerung möglich.',web:'',tel:'+43 5335 8xxx',mail:'werkstatt@kelchsau-auto.at',adr:'Kelchsau 3',hours:'Mo–Fr 7:30–12, 13–17 Uhr',me:'none',admin:'Inhaber',posters:['Inhaber']},
+ {k:'E',name:'Erla Brennhütte',sub:'Jausenstation',kurz:'Jausenstation am Weg zur Alm, hausgemachter Speck und Käse, Mai bis Oktober.',text:'Zu Fuß etwa 45 Minuten vom Parkplatz Wegscheid. Gruppen bitte anmelden.',web:'',tel:'+43 664 xxx',mail:'',adr:'Kelchsau, Langer Grund',hours:'Mai–Okt, Di–So 10–18 Uhr',me:'none',admin:'Hüttenwirt',posters:['Hüttenwirt']},
+ {k:'N',name:'Niederkaseralm',sub:'Almgasthaus · Käserei',kurz:'Bewirtschaftete Alm mit eigener Käserei, Almkäse und Butter ab Hof.',text:'Almabtrieb Ende September. Käse gibt es im Sommer direkt auf der Alm, im Winter beim Spar.',web:'niederkaseralm.at',tel:'+43 664 xxx',mail:'alm@niederkaseralm.at',adr:'Kelchsau, Kurzer Grund',hours:'Juni–Sept täglich 9–18 Uhr',me:'none',admin:'Almbauer',posters:['Almbauer']},
+ {k:'W',name:'Gasthof Wegscheid',sub:'Gasthof · Talschluss',kurz:'Gasthof am Talschluss, Ausgangspunkt für Touren zur Bamberger Hütte, Zimmer und Küche.',text:'Großer Parkplatz, Sonnenterrasse, Wanderkarten und Tourentipps.',web:'gasthof-wegscheid.at',tel:'+43 5335 8xxx',mail:'info@gasthof-wegscheid.at',adr:'Kelchsau, Wegscheid 1',hours:'täglich 9–21 Uhr, Nov. geschlossen',me:'none',admin:'Familie',posters:['Wirt']},
+ {k:'B',name:'Bamberger Hütte',sub:'Schutzhütte · 1 756 m',kurz:'Alpenvereinshütte im Talschluss, 80 Schlafplätze, Sommer- und Winterbetrieb.',text:'Aufstieg von Wegscheid etwa 2 Stunden. Übernachtung reservieren, für Einheimische Vereinsrabatt.',web:'alpenverein.at',tel:'+43 664 xxx',mail:'bambergerhuette@alpenverein.at',adr:'Kelchsau, Talschluss',hours:'Sommer Juni–Okt, Winter Dez–April',me:'none',admin:'Hüttenwirt',posters:['Hüttenwirt']}
+];
+
+const polls=[
+ {id:1,q:'Wo soll der neue Kinderspielplatz hin?',by:'Krafttal Kelchsau · endet Sonntag',votes:[['Beim Sportplatz',38],['Hinter der Volksschule',52],['Am Dorfplatz',19]],mine:null,total:109},
+ {id:2,q:'Dorffest 2027: eher Juli oder August?',by:'Landjugend · endet 15. September',votes:[['Juli',27],['August',31],['Mir egal',9]],mine:null,total:67}
+];
+const ideas=[
+ {id:1,t:'Mitfahrbank am Ortseingang',by:'Sepp Kruckenhauser',v:34,mine:false,st:'pruef',stTxt:'Wird geprüft',ans:'Das Team klärt mit der Gemeinde den Standort. Rückmeldung bis Oktober.'},
+ {id:2,t:'Gemeinsame Bestellung von Heizpellets',by:'Familie Eder',v:21,mine:false,st:'neu',stTxt:'Eingereicht',ans:''},
+ {id:3,t:'Defibrillator beim Spar außen anbringen',by:'Anna Wurzrainer',v:58,mine:false,st:'done',stTxt:'Umgesetzt',ans:'Hängt seit Juli neben dem Eingang. Einschulung gab es im August.'},
+ {id:4,t:'Tauschregal für Bücher im Musikheim',by:'Lisa Astner',v:12,mine:false,st:'neu',stTxt:'Eingereicht',ans:''}
+];
+const pending=[
+ {name:'Georg Oberhauser',adr:'Kelchsau 118',rolle:'Einwohner',wer:'kennt Hannes Rieder',when:'vor 3 Std.'},
+ {name:'Julia Mayr',adr:'Kelchsau 7',rolle:'Betrieb (Friseursalon)',wer:'',when:'gestern'}
+];
+
+/* ---------- Renderers ---------- */
+function avatars(list,max=3){
+  const shown=list.slice(0,max).map(n=>`<span class="avatar xs" title="${esc(n)}">${ini(n)}</span>`).join('');
+  return `<span class="avatars">${shown}</span>`;
+}
+function anlCard(a,compact){
+  const inMe=a.in.includes(me.name);
+  const need=a.need?`<span class="meta num">${a.in.length} von ${a.need} zugesagt</span>`:'';
+  let actions='';
+  if(a.declined){
+    actions=`<div class="row" style="margin-top:10px;gap:8px"><button class="btn sm ghost" data-restore="${a.id}">Zurückholen</button><span class="meta">Abgesagt, für dich ausgeblendet</span></div>`;
+  }else if(a.need){
+    actions=`<div class="row wrap" style="margin-top:10px;gap:8px">
+      <button class="btn sm ${inMe?'primary':'ghost'}" data-join="${a.id}" aria-pressed="${inMe}">${inMe?'Zugesagt':'Ich bin dabei'}</button>
+      ${inMe?'':`<button class="btn sm ghost" data-decline="${a.id}" style="color:var(--muted)">Absagen</button>`}
+      <span class="meta num" style="margin-left:auto">${a.comments.length} Kommentar${a.comments.length===1?'':'e'}</span></div>`;
+  }else{
+    actions=`<div class="row between" style="margin-top:8px"><span class="meta num">${a.comments.length} Kommentar${a.comments.length===1?'':'e'}</span>${compact?'':`<button class="btn sm ghost" data-decline="${a.id}" style="color:var(--muted)">Ausblenden</button>`}</div>`;
+  }
+  return `<div class="card tap ${a.declined?'dismissed':''}" data-anl="${a.id}">
+    <div class="row between"><span class="chip ${a.cat}">${catName[a.cat]}</span><span class="meta">${esc(a.when)}</span></div>
+    <p class="title" style="margin-top:8px">${esc(a.title)}</p>
+    ${compact?'':`<p class="body">${linkify(a.text)}</p>`}
+    ${a.imgs&&a.imgs.length&&!compact?`<div class="photos">${a.imgs.slice(0,2).map(([t,l],i)=>`<div class="photo" style="--ph:${tones[t]}" role="img" aria-label="${esc(l)}"><span>${esc(l)}</span>${i===1&&a.imgs.length>2?`<span class="n">+${a.imgs.length-2}</span>`:''}</div>`).join('')}</div>`:(a.imgs&&a.imgs.length&&compact?photo(a.imgs[0][0],a.imgs[0][1],'sm'):'')}
+    ${a.link&&!compact?linkCard(a.link):''}
+    <div class="row between wrap" style="margin-top:10px">
+      <span class="meta">${esc(a.by)}</span>
+      <span class="row" style="gap:6px;white-space:nowrap">${a.in.length?avatars(a.in):''}${need}</span>
+    </div>
+    ${actions}
+  </div>`;
+}
+function renderAnl(){
+  const decl=anliegen.filter(a=>a.declined);
+  const list=state.filterA==='abgelehnt'?decl:anliegen.filter(a=>!a.declined&&(state.filterA==='alle'||a.cat===state.filterA));
+  $('#anl-list').innerHTML=(state.filterA==='abgelehnt'?`<p class="meta" style="margin:-2px 0 4px">Beiträge, die du abgesagt oder ausgeblendet hast. Der Ersteller sieht deine Absage nicht, nur dass du nicht dabei bist.</p>`:'')
+    +(list.map(a=>anlCard(a,false)).join('')||'<div class="empty">Nichts in dieser Kategorie.</div>');
+  $('#anl-count').textContent=list.length+(list.length===1?' Beitrag':' Beiträge');
+  $('#decl-count').textContent=decl.length?decl.length:'';
+  const open=anliegen.filter(a=>!a.declined&&a.need&&a.in.length<a.need&&!a.in.includes(me.name));
+  $('#heute-anliegen').innerHTML=open.slice(0,2).map(a=>anlCard(a,true)).join('');
+  $('#anl-badge').textContent=open.length; $('#anl-badge').hidden=!open.length;
+}
+function evCard(e,compact){
+  return `<div class="card tap" data-ev="${e.id}">
+    <div class="ev">
+      <div class="date ${e.hl?'hl':''}"><b class="num">${e.d}</b><span>${e.m}</span></div>
+      <div>
+        <div class="row between"><p class="title" style="font-size:15px">${esc(e.title)}</p></div>
+        <p class="meta">${e.wd} · ${esc(e.time)} · ${esc(e.where)}</p>
+        ${compact?'':`<div class="row between wrap" style="margin-top:8px">
+          <span class="meta">${esc(e.by)}${e.rep?' · '+e.rep:''}</span>
+          ${e.going!==undefined&&!e.rep?`<button class="btn sm ${e.me?'primary':'ghost'}" data-going="${e.id}" aria-pressed="${!!e.me}">${e.me?'Du kommst':'Ich komme'}${e.going?` <span class="num" style="opacity:.75">· ${e.going}</span>`:''}</button>`:''}
+        </div>`}
+      </div>
+    </div></div>`;
+}
+const monthNames=['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const wdNames=['So','Mo','Di','Mi','Do','Fr','Sa'];
+function renderGrid(){
+  const y=2026,m=state.month;
+  $('#mLabel').textContent=monthNames[m]+' 2026';
+  $('#mPrev').disabled=m<=8; $('#mPrev').style.opacity=m<=8?.35:1;
+  $('#mNext').disabled=m>=9; $('#mNext').style.opacity=m>=9?.35:1;
+  const first=new Date(y,m,1), pad=(first.getDay()+6)%7, days=new Date(y,m+1,0).getDate();
+  const today=(m===7)?31:(m===8?0:0);
+  let html='';
+  for(let i=0;i<pad;i++)html+='<div class="day pad"></div>';
+  for(let d=1;d<=days;d++){
+    const evs=events.filter(e=>e.mi===m&&e.d===d);
+    const cls=['day',evs.length?'has':'',state.selDay===d?'sel':''].join(' ');
+    html+=`<div class="${cls}" ${evs.length?`data-day="${d}" role="button" tabindex="0" aria-label="${d}. ${monthNames[m]}, ${evs.length} Termin${evs.length>1?'e':''}"`:''}><span>${d}</span><span class="dots">${evs.slice(0,3).map(e=>`<i class="${e.cat}"></i>`).join('')}</span></div>`;
+  }
+  $('#calGrid').innerHTML=html;
+  const box=$('#dayBox');
+  if(state.selDay){
+    const evs=events.filter(e=>e.mi===m&&e.d===state.selDay);
+    box.innerHTML=`<div class="daybox"><p class="meta">${evs[0]?evs[0].wd:''}, ${state.selDay}. ${monthNames[m]}</p><div class="stack">${evs.map(e=>evCard(e,false)).join('')}</div></div>`;
+  }else box.innerHTML='<p class="hint" style="margin-top:8px">Tag mit Punkt antippen: bei einem Termin öffnet er sich direkt, bei mehreren siehst du die Auswahl.</p>';
+}
+function pickDay(d){
+  const evs=events.filter(e=>e.mi===state.month&&e.d===d);
+  state.selDay=d; renderGrid();
+  if(evs.length===1)showEv(evs[0].id);
+}
+function renderKal(){
+  const list=events.filter(e=>state.filterK==='alle'||e.cat===state.filterK).slice().sort((a,b)=>(a.mi-b.mi)||(a.d-b.d));
+  $('#kal-list').innerHTML=list.map(e=>evCard(e,false)).join('')||'<div class="empty">Keine Termine in dieser Kategorie.</div>';
+  $('#heute-events').innerHTML=events.slice().sort((a,b)=>(a.mi-b.mi)||(a.d-b.d)).slice(0,3).map(e=>evCard(e,true)).join('');
+  renderGrid();
+}
+function pollCard(p){
+  const locked=p.mine!==null;
+  return `<div class="card" data-poll="${p.id}">
+    <p class="title">${esc(p.q)}</p>
+    <p class="meta" style="margin-bottom:10px">${esc(p.by)} · <span class="num">${p.total}</span> Stimmen</p>
+    ${p.votes.map(([l,n],i)=>{
+      const pct=locked?Math.round(n/p.total*100):0;
+      return `<div class="opt ${locked?'locked':''}" role="radio" aria-checked="${p.mine===i}" data-vote="${i}" tabindex="0">
+        <div class="bar" style="width:${pct}%"></div>
+        <div class="lbl"><span>${esc(l)}</span><span class="num">${locked?pct+' %':''}</span></div></div>`}).join('')}
+    <p class="hint">${locked?'Deine Stimme ist gezählt. Ergebnis sichtbar, Namen nicht.':'Antippen zum Abstimmen. Das Ergebnis siehst du danach.'}</p>
+  </div>`;
+}
+function renderPolls(){
+  $('#poll-list').innerHTML=polls.map(pollCard).join('');
+  $('#heute-poll').outerHTML=pollCard(polls[0]).replace('class="card"','class="card" id="heute-poll"');
+}
+function renderIdeas(){
+  $('#idea-list').innerHTML=ideas.slice().sort((a,b)=>b.v-a.v).map(i=>`<div class="card">
+    <div class="idea">
+      <button class="vote" data-idea="${i.id}" aria-pressed="${i.mine}" aria-label="Stimme geben"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14l6-6 6 6"/></svg><b class="num">${i.v}</b></button>
+      <div>
+        <div class="row between"><p class="title" style="font-size:15px">${esc(i.t)}</p></div>
+        <p class="meta">${esc(i.by)}</p>
+        <div style="margin-top:8px"><span class="chip status-${i.st}">${i.stTxt}</span></div>
+        ${i.ans?`<p class="body" style="margin-top:8px;border-left:2px solid var(--tanne);padding-left:10px"><span class="meta">Antwort vom Team</span><br>${esc(i.ans)}</p>`:''}
+      </div></div></div>`).join('');
+}
+function renderDorf(){
+  const row=(x,type)=>`<div class="item" data-org="${type}:${esc(x.name)}"><div class="sq">${x.k}</div><div class="t"><p class="title">${esc(x.name)}${x.me==='member'?' <span class="chip status-done" style="font-size:11px;padding:1px 7px">Mitglied</span>':''}</p><p class="meta">${esc(x.sub)}</p>${type==='b'?`<p class="meta" style="color:var(--ink-2);margin-top:2px">${esc(x.kurz)}</p>`:''}</div><span class="chev">›</span></div>`;
+  $('#verein-list').innerHTML=vereine.map(v=>row(v,'v')).join('');
+  $('#betrieb-list').innerHTML=betriebe.map(b=>row(b,'b')).join('');
+}
+
+/* ---------- Sheet ---------- */
+const sheet=$('#sheet'), sc=$('#sheet-content'), st=$('#sheet-title'), sf=$('#sheet-foot');
+let current=null;
+function openSheet(title,html,foot){st.textContent=title;sc.innerHTML=html;sf.hidden=!foot;sheet.classList.add('open');sc.scrollTop=0;}
+function closeSheet(){sheet.classList.remove('open');current=null;}
+$$('[data-close]').forEach(b=>b.onclick=closeSheet);
+
+function showAnl(id){
+  const a=anliegen.find(x=>x.id===id); current={type:'anl',id};
+  const inMe=a.in.includes(me.name);
+  openSheet('Anliegen',`
+    <div class="row between" style="margin-top:8px"><span class="chip ${a.cat}">${catName[a.cat]}</span><span class="meta">${esc(a.when)}</span></div>
+    <h2 style="font-size:22px;margin-top:10px">${esc(a.title)}</h2>
+    <p class="meta" style="margin-top:4px">${esc(a.by)}</p>
+    <p class="body" style="margin-top:12px;font-size:16px">${linkify(a.text)}</p>
+    ${a.imgs&&a.imgs.length?`<div class="photos">${a.imgs.map(([t,l])=>photo(t,l)).join('')}</div>`:''}
+    ${a.link?linkCard(a.link):''}
+    ${a.need?`<div class="card" style="margin-top:16px">
+      <div class="row between"><p class="title" style="font-size:15px">Zusagen</p><span class="meta num">${a.in.length} von ${a.need}</span></div>
+      <div style="height:6px;background:var(--surface-2);border-radius:3px;margin:8px 0 10px"><div style="height:100%;width:${Math.min(100,a.in.length/a.need*100)}%;background:var(--tanne);border-radius:3px"></div></div>
+      ${a.in.length?`<div class="stack" style="gap:6px">${a.in.map(n=>`<div class="row"><span class="avatar sm">${ini(n)}</span><span style="font-size:15px">${esc(n)}${n===me.name?' <span class="meta">(du)</span>':''}</span></div>`).join('')}</div>`:'<p class="meta">Noch niemand. Sei die Erste.</p>'}
+      ${a.declined?`<button class="btn block ghost" style="margin-top:12px" data-restore="${a.id}">Zurückholen und zusagen</button>`:`<div class="row" style="margin-top:12px;gap:8px"><button class="btn ${inMe?'ghost':'primary'}" style="flex:1" data-join="${a.id}">${inMe?'Zusage zurückziehen':'Ich bin dabei'}</button>${inMe?'':`<button class="btn ghost" data-decline="${a.id}">Absagen</button>`}</div>`}
+    </div>`:(a.declined?`<button class="btn block ghost" style="margin-top:14px" data-restore="${a.id}">Wieder anzeigen</button>`:`<button class="btn block ghost" style="margin-top:14px;color:var(--muted)" data-decline="${a.id}">Ausblenden</button>`)}
+    ${a.declined?`<div class="banner"><span>Du hast abgesagt. Der Beitrag liegt unter „Abgelehnt“.</span></div>`:''}
+    <div class="sec"><div class="sec-h"><h2 style="font-size:17px">Kommentare</h2><span class="meta num">${a.comments.length}</span></div>
+      <div class="card" id="cmts">${a.comments.map(c=>`<div class="comment"><span class="avatar sm">${ini(c.who)}</span><div><span class="who">${esc(c.who)}</span><span class="meta">${esc(c.when)}</span><p class="txt">${linkify(c.t)}</p></div></div>`).join('')||'<div class="empty">Noch keine Kommentare.</div>'}</div>
+    </div>
+    <p style="margin-top:14px;text-align:center"><button class="report" data-toast="Gemeldet. Das Krafttal-Team schaut sich den Beitrag an und meldet sich bei dir.">Beitrag melden</button></p>`,true);
+}
+function showEv(id){
+  const e=events.find(x=>x.id===id); current={type:'ev',id};
+  openSheet('Termin',`
+    <div class="ev" style="margin-top:10px"><div class="date ${e.hl?'hl':''}"><b class="num">${e.d}</b><span>${e.m}</span></div>
+      <div><h2 style="font-size:22px">${esc(e.title)}</h2><p class="meta" style="margin-top:4px">${e.wd} · ${esc(e.time)}</p></div></div>
+    <div class="card" style="margin-top:16px">
+      <div class="kv"><span>Ort</span><span>${esc(e.where)}</span></div>
+      <div class="kv"><span>Veranstalter</span><span>${esc(e.by)}</span></div>
+      ${e.rep?`<div class="kv"><span>Wiederholung</span><span>${e.rep}</span></div>`:`<div class="kv"><span>Zusagen</span><span class="num" id="ev-going">${e.going}</span></div>`}
+    </div>
+    <p class="body" style="margin-top:14px;font-size:16px">${esc(e.text)}</p>
+    ${e.rep?'':`<button class="btn block ${e.me?'ghost':'primary'}" style="margin-top:18px" data-going="${e.id}">${e.me?'Doch nicht kommen':'Ich komme'}</button>`}
+    <button class="btn ghost block" style="margin-top:8px" data-toast="Im echten Betrieb landet der Termin in deinem Handykalender.">In meinen Kalender</button>`,false);
+}
+function showOrg(type,name){
+  const isV=type==='v';
+  const o=(isV?vereine:betriebe).find(x=>x.name===name); current={type:'org',key:type+':'+name};
+  const contact=isV
+    ?`<div class="kv"><span>Kontakt</span><span>${esc(o.kontakt)}</span></div><div class="kv"><span>Mitglieder</span><span class="num">${o.n}</span></div>`
+    :`<div class="kv"><span>Adresse</span><span>${esc(o.adr)}</span></div>
+       <div class="kv"><span>Telefon</span><span><a class="link" href="tel:${esc(o.tel.replace(/\s/g,''))}">${esc(o.tel)}</a></span></div>
+       ${o.mail?`<div class="kv"><span>E-Mail</span><span><a class="link" href="mailto:${esc(o.mail)}">${esc(o.mail)}</a></span></div>`:''}
+       ${o.web?`<div class="kv"><span>Webseite</span><span><a class="link" href="https://${esc(o.web)}" target="_blank" rel="noopener">${esc(o.web)}</a></span></div>`:'<div class="kv"><span>Webseite</span><span class="meta">keine</span></div>'}
+       <div class="kv"><span>Öffnungszeiten</span><span style="text-align:right;max-width:55%">${esc(o.hours)}</span></div>`;
+  let join='';
+  if(o.me==='member'){
+    join=`<div class="card" style="margin-top:14px;border-color:var(--tanne)">
+      <div class="row between"><p class="title" style="font-size:15px">Du bist ${isV?'Mitglied':'Teil des Betriebs'}</p><span class="chip status-done">bestätigt</span></div>
+      <p class="meta" style="margin-top:4px">Du kannst Beiträge und Termine im Namen von ${esc(o.name)} einstellen. Sie erscheinen mit dem ${isV?'Vereins':'Betriebs'}namen, nicht mit deinem.</p>
+      <div class="row wrap" style="margin-top:10px;gap:8px"><button class="btn primary sm" data-post-as="${esc(o.name)}">Beitrag als ${esc(o.name.split(' ')[0])}</button><button class="btn ghost sm" data-toast="Im echten Betrieb: Terminformular, erscheint sofort im Kalender.">Termin eintragen</button></div>
+      <p class="hint" style="margin-top:8px">Wer hier posten darf: ${o.posters.map(esc).join(', ')}. ${isV?'Der Obmann':'Der Inhaber'} kann Rechte entziehen.</p>
+    </div>`;
+  }else if(o.me==='requested'){
+    join=`<div class="card" style="margin-top:14px">
+      <div class="row between"><p class="title" style="font-size:15px">Anfrage gestellt</p><span class="chip status-pruef">wartet</span></div>
+      <p class="meta" style="margin-top:4px">${isV?esc(o.admin)+' bekommt eine Mitteilung und bestätigt, dass du dazugehörst.':'Das Krafttal-Team ruft beim Betrieb an und bestätigt dann. Meist innerhalb von zwei Tagen.'}</p>
+      <div class="row wrap" style="margin-top:10px;gap:8px"><button class="btn accent sm" data-demo-org="${type}:${esc(o.name)}">Demo: Bestätigung kommt</button><button class="btn ghost sm" data-cancel-org="${type}:${esc(o.name)}">Zurückziehen</button></div>
+    </div>`;
+  }else{
+    join=`<div class="card" style="margin-top:14px">
+      <p class="title" style="font-size:15px">${isV?'Ich bin Mitglied':'Ich gehöre zum Betrieb'}</p>
+      <p class="meta" style="margin-top:4px">${isV?'Für Leute, die im Verein sind. '+esc(o.admin)+' bestätigt das. Danach kannst du im Namen des Vereins posten.':'Für Inhaber und Mitarbeiter. Nach Bestätigung kannst du Angebote, Öffnungszeiten und Termine im Namen des Betriebs einstellen.'}</p>
+      <button class="btn primary block" style="margin-top:10px" data-join-org="${type}:${esc(o.name)}">${isV?'Mitglied werden':'Zugehörigkeit anfragen'}</button>
+      <p class="hint" style="margin-top:8px">Zum Mitlesen musst du nicht beitreten. „Folgen“ reicht, dann bekommst du Termine und Beiträge in „Heute“.</p>
+    </div>`;
+  }
+  const posts=anliegen.filter(a=>a.by===o.name);
+  openSheet(isV?'Verein':'Betrieb',`
+    <div class="row" style="margin-top:10px;gap:14px"><div class="sq" style="width:64px;height:64px;border-radius:16px;background:var(--surface-2);display:grid;place-items:center;font-family:Fraunces,serif;font-size:22px;font-weight:600;color:var(--tanne);flex:none">${o.k}</div>
+      <div><h2 style="font-size:21px">${esc(o.name)}</h2><p class="meta">${esc(o.sub)}</p></div></div>
+    ${isV?'':`<p class="body" style="margin-top:14px;font-size:16px;font-weight:500;color:var(--ink)">${esc(o.kurz)}</p>`}
+    <p class="body" style="margin-top:${isV?14:8}px;font-size:16px">${esc(o.text)}</p>
+    <div class="card" style="margin-top:14px">${contact}</div>
+    <div class="row" style="margin-top:12px;gap:8px">
+      <button class="btn ghost" style="flex:1" data-toast="Im echten Betrieb: Nachricht direkt an ${esc(o.name)}.">Nachricht</button>
+      <button class="btn ghost" style="flex:1" data-follow aria-pressed="false">Folgen</button>
+    </div>
+    ${join}
+    ${posts.length?`<div class="sec"><div class="sec-h"><h2 style="font-size:17px">Beiträge von ${esc(o.name.split(' ')[0])}</h2><span class="meta num">${posts.length}</span></div><div class="stack">${posts.map(a=>anlCard(a,true)).join('')}</div></div>`:''}`,false);
+}
+function showProfile(){
+  current={type:'me'};
+  openSheet('Mein Bereich',`
+    <div class="row" style="margin-top:10px;gap:14px"><span class="avatar" style="width:56px;height:56px;font-size:20px">MH</span><div><h2 style="font-size:21px">Maria Hauser</h2><p class="meta">Kelchsau 42 · freigeschaltet seit März</p></div></div>
+    <div class="sec"><div class="sec-h"><h2 style="font-size:17px">Mitteilungen</h2></div>
+      <div class="card">
+        <div class="row between" style="padding:6px 0"><div><p style="font-weight:600">Mitteilungen aufs Handy</p><p class="meta">Über den Browser oder als installierte App</p></div><button class="tog" id="pushTog" role="switch" aria-checked="${state.pushOn}" aria-label="Mitteilungen"></button></div>
+        <div class="divider" style="margin:8px 0"></div>
+        ${[['Zusagen und Kommentare auf meine Anliegen',true],['Absagen und Änderungen bei Terminen, zu denen ich komme',true],['Neue Abstimmungen',true],['Neue Anliegen im Tal',false],['Beiträge von Vereinen, denen ich folge',true]].map(([l,on])=>`<div class="row between" style="padding:7px 0"><span style="font-size:15px;flex:1;padding-right:10px">${l}</span><button class="tog" role="switch" aria-checked="${on}" aria-label="${l}"></button></div>`).join('')}
+        <button class="btn soft block" style="margin-top:10px" id="testPush">Beispiel-Mitteilung anzeigen</button>
+      </div>
+    </div>
+    <div class="sec"><div class="sec-h"><h2 style="font-size:17px">Freischaltungen</h2><span class="chip status-pruef num" id="pendCnt">${pending.length} offen</span></div>
+      <p class="meta" style="margin:-4px 0 10px">Du bist im Krafttal-Team und siehst deshalb neue Anmeldungen.</p>
+      <div class="card" id="pendList">${pending.map((p,i)=>`<div class="pend" data-pend="${i}"><span class="avatar sm">${ini(p.name)}</span><div class="t"><p style="font-weight:600">${esc(p.name)}</p><p class="meta">${esc(p.adr)} · ${esc(p.rolle)} · ${esc(p.when)}</p>${p.wer?`<p class="meta">${esc(p.wer)}</p>`:'<p class="meta" style="color:var(--warn)">Keine Referenz angegeben</p>'}<div class="acts"><button class="btn sm primary" data-ok="${i}">Freischalten</button><button class="btn sm danger" data-no="${i}">Ablehnen</button></div></div></div>`).join('')||'<div class="empty">Keine offenen Anmeldungen.</div>'}</div>
+    </div>
+    <div class="sec"><div class="card">
+      <div class="kv"><span>Meine Anliegen</span><span class="num">2</span></div>
+      <div class="kv"><span>Meine Zusagen</span><span class="num" id="myJoins">${anliegen.filter(a=>a.in.includes(me.name)).length}</span></div>
+      <div class="kv"><span>Ich folge</span><span>Musikkapelle, Sportverein</span></div>
+    </div></div>
+    <div class="sec"><button class="btn ghost block" data-toast="Im echten Betrieb: Datenschutz, Nutzungsregeln, Konto löschen.">Datenschutz und Konto</button></div>`,false);
+}
+function showBell(){
+  current={type:'bell'};
+  const items=[
+    ['Toni Fuchs hat bei „Heuernte“ zugesagt','vor 20 Min.'],
+    ['Neue Abstimmung: Dorffest 2027, Juli oder August?','vor 3 Std.'],
+    ['Hannes Rieder hat dein Anliegen kommentiert','gestern'],
+    ['Almabtrieb & Hoamfohrfest: Programm ist online','vor 2 Tagen']
+  ];
+  openSheet('Mitteilungen',`<div class="card" style="margin-top:10px">${items.map(([t,w])=>`<div class="comment"><div><p style="font-size:15px">${t}</p><span class="meta">${w}</span></div></div>`).join('')}</div>`,false);
+  $('#bellDot').hidden=true;
+}
+
+/* ---------- Actions ---------- */
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2200);}
+function pushBanner(text){const p=$('#push');$('#pushtext').textContent=text;p.classList.add('show');clearTimeout(p._h);p._h=setTimeout(()=>p.classList.remove('show'),3800);}
+function toggleJoin(id){
+  const a=anliegen.find(x=>x.id===id); const i=a.in.indexOf(me.name);
+  if(i>=0){a.in.splice(i,1);toast('Zusage zurückgezogen.');}
+  else{a.in.push(me.name);toast(`Zugesagt. ${esc(a.by)} wird benachrichtigt.`);}
+  renderAnl(); if(current&&current.type==='anl'&&current.id===id)showAnl(id);
+}
+function toggleGoing(id){
+  const e=events.find(x=>x.id===id); e.me=!e.me; e.going+=e.me?1:-1;
+  toast(e.me?'Du bist eingetragen. Bei Änderungen sagen wir dir Bescheid.':'Ausgetragen.');
+  renderKal(); if(current&&current.type==='ev'&&current.id===id)showEv(id);
+}
+function vote(pid,i){
+  const p=polls.find(x=>x.id===pid); if(p.mine!==null)return;
+  p.mine=i;p.votes[i][1]++;p.total++;renderPolls();
+  toast('Stimme gezählt.');
+}
+function showTab(name){
+  $$('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===name));
+  $$('.screen').forEach(s=>s.classList.toggle('active',s.id==='s-'+name));
+  $('#fab').style.display=(name==='anliegen'||name==='heute')?'grid':'none';
+  closeSheet();
+}
+function newAnl(preAs){
+  current={type:'new'};
+  const orgs=[...vereine,...betriebe].filter(o=>o.me==='member').map(o=>o.name);
+  const opts=[me.name+' (ich)',...orgs].map(n=>`<option ${n===preAs?'selected':''}>${esc(n)}</option>`).join('');
+  openSheet('Neues Anliegen',`
+    <div class="field"><label for="n-as">Veröffentlichen als</label><select id="n-as">${opts}</select>
+      <p class="hint">${orgs.length?'Vereine und Betriebe, bei denen du bestätigt bist, stehen hier zur Auswahl.':'Wenn du bei einem Verein oder Betrieb bestätigt bist, kannst du hier in dessen Namen posten.'}</p></div>
+    <div class="field"><label>Was ist es?</label><div class="seg">
+      <button class="pill" aria-pressed="true">Hilfe gesucht</button><button class="pill" aria-pressed="false">Biete</button><button class="pill" aria-pressed="false">Hinweis</button><button class="pill" aria-pressed="false">Verloren / Gefunden</button></div></div>
+    <div class="field"><label for="n-t">Überschrift</label><input id="n-t" placeholder="z. B. Zaun am Waldrand ausbessern, Samstag"></div>
+    <div class="field"><label for="n-x">Worum geht es?</label><textarea id="n-x" placeholder="Wann, wo, wie lange, was soll man mitbringen."></textarea></div>
+    <div class="field"><label for="n-n">Wie viele Leute brauchst du?</label><input id="n-n" inputmode="numeric" placeholder="2"></div>
+    <div class="field"><label>Fotos <span style="font-weight:400;color:var(--muted)">(bis zu 4)</span></label>
+      <button class="btn ghost block" data-toast="Im echten Betrieb: Kamera oder Fotomediathek. Hier zur Demo drei Beispielbilder.">Foto aufnehmen oder auswählen</button>
+      <div class="picker" id="picker">${[['alm','Alm'],['heu','Wiese'],['kirche','Kirche']].map(([t,l])=>`<div class="photo" style="--ph:${tones[t]}" data-pick="${t}" data-label="${l}" aria-pressed="false" role="button" tabindex="0"><span>${l}</span><span class="n">✓</span></div>`).join('')}</div>
+      <p class="hint">Bilder werden verkleinert hochgeladen. Keine Fotos von Kindern anderer Leute ohne deren Einverständnis.</p></div>
+    <div class="field"><label for="n-l">Link <span style="font-weight:400;color:var(--muted)">(optional)</span></label><input id="n-l" inputmode="url" placeholder="https://…"><p class="hint">Wird als Vorschau angezeigt. Links im Text werden automatisch anklickbar.</p></div>
+    <p class="hint">Sichtbar für alle freigeschalteten Leute im Tal. Klarname oder Vereins-/Betriebsname ist Pflicht.</p>
+    <button class="btn primary block" style="margin-top:18px" id="n-send">Veröffentlichen</button>`,false);
+}
+
+/* ---------- Event wiring ---------- */
+document.addEventListener('click',e=>{
+  if(e.target.closest('a[href]'))return;
+  const el=e.target.closest('[data-pick],[data-tab],[data-toast],[data-join],[data-decline],[data-restore],[data-going],[data-day],[data-anl],[data-ev],[data-org],[data-vote],[data-idea],[data-f],[data-go],[data-ok],[data-no],[data-follow],[data-join-org],[data-demo-org],[data-cancel-org],[data-post-as],.seg .pill,.tog');
+  if(!el)return;
+  if(el.dataset.pick){el.setAttribute('aria-pressed',el.getAttribute('aria-pressed')!=='true');return;}
+  if(el.matches('.seg .pill')){$$('.pill',el.parentElement).forEach(p=>p.setAttribute('aria-pressed',p===el));return;}
+  if(el.matches('.tog')&&el.id!=='pushTog'){el.setAttribute('aria-checked',el.getAttribute('aria-checked')!=='true');return;}
+  if(el.id==='pushTog'){state.pushOn=!state.pushOn;el.setAttribute('aria-checked',state.pushOn);$('#pushPrompt').hidden=state.pushOn;toast(state.pushOn?'Mitteilungen sind an.':'Mitteilungen sind aus.');return;}
+  if(el.dataset.go){$$('.onb .step').forEach(s=>s.classList.toggle('active',s.id===el.dataset.go));
+    if(el.dataset.go==='step-wait'){const n=$('#f-name').value.trim().split(' ')[0];$('#wait-name').textContent=n||'Maria';}
+    $('#onb').scrollTop=0;return;}
+  if(el.dataset.tab){showTab(el.dataset.tab);return;}
+  if(el.dataset.toast){toast(el.dataset.toast);return;}
+  if(el.dataset.join){e.stopPropagation();toggleJoin(+el.dataset.join);return;}
+  if(el.dataset.decline){e.stopPropagation();const a=anliegen.find(x=>x.id===+el.dataset.decline);a.declined=true;renderAnl();if(current&&current.type==='anl')closeSheet();toast(a.need?'Abgesagt. Liegt jetzt unter „Abgelehnt“.':'Ausgeblendet. Liegt jetzt unter „Abgelehnt“.');return;}
+  if(el.dataset.restore){e.stopPropagation();const a=anliegen.find(x=>x.id===+el.dataset.restore);a.declined=false;renderAnl();if(current&&current.type==='anl')showAnl(a.id);toast('Zurückgeholt.');return;}
+  if(el.dataset.day){pickDay(+el.dataset.day);return;}
+  if(el.dataset.joinOrg){const [t,n]=el.dataset.joinOrg.split(/:(.+)/);const o=(t==='v'?vereine:betriebe).find(x=>x.name===n);o.me='requested';showOrg(t,n);toast(t==='v'?`Anfrage an ${o.admin} geschickt.`:'Anfrage ans Krafttal-Team geschickt.');return;}
+  if(el.dataset.demoOrg){const [t,n]=el.dataset.demoOrg.split(/:(.+)/);const o=(t==='v'?vereine:betriebe).find(x=>x.name===n);o.me='member';o.posters.push('Maria Hauser (du)');showOrg(t,n);renderDorf();pushBanner(`${n}: Du bist jetzt ${t==='v'?'Mitglied':'bestätigt'} und kannst posten.`);return;}
+  if(el.dataset.cancelOrg){const [t,n]=el.dataset.cancelOrg.split(/:(.+)/);const o=(t==='v'?vereine:betriebe).find(x=>x.name===n);o.me='none';showOrg(t,n);toast('Anfrage zurückgezogen.');return;}
+  if(el.dataset.postAs){newAnl(el.dataset.postAs);return;}
+  if(el.dataset.going){e.stopPropagation();toggleGoing(+el.dataset.going);return;}
+  if(el.dataset.anl){showAnl(+el.dataset.anl);return;}
+  if(el.dataset.ev){showEv(+el.dataset.ev);return;}
+  if(el.dataset.org){const [t,n]=el.dataset.org.split(/:(.+)/);showOrg(t,n);return;}
+  if(el.dataset.vote!==undefined){const pid=+el.closest('[data-poll]').dataset.poll;vote(pid,+el.dataset.vote);return;}
+  if(el.dataset.idea){const i=ideas.find(x=>x.id===+el.dataset.idea);i.mine=!i.mine;i.v+=i.mine?1:-1;renderIdeas();toast(i.mine?'Stimme gegeben.':'Stimme zurückgenommen.');return;}
+  if(el.dataset.f){const grp=el.parentElement;$$('.pill',grp).forEach(p=>p.setAttribute('aria-pressed',p===el));
+    if(grp.id==='anl-filter'){state.filterA=el.dataset.f;renderAnl();}else{state.filterK=el.dataset.f;renderKal();}return;}
+  if(el.dataset.ok!==undefined||el.dataset.no!==undefined){
+    const i=+(el.dataset.ok??el.dataset.no);const p=pending[i];const ok=el.dataset.ok!==undefined;
+    pending.splice(i,1);toast(ok?`${p.name} ist freigeschaltet und bekommt eine SMS.`:`${p.name} abgelehnt. Eine kurze Begründung geht per SMS raus.`);showProfile();return;}
+  if(el.hasAttribute('data-follow')){const on=el.getAttribute('aria-pressed')!=='true';el.setAttribute('aria-pressed',on);el.textContent=on?'Du folgst':'Folgen';return;}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.opt,.day,[data-pick]'))e.target.click();});
+$('#mPrev').onclick=()=>{if(state.month>8){state.month--;state.selDay=null;renderGrid();}};
+$('#mNext').onclick=()=>{if(state.month<9){state.month++;state.selDay=null;renderGrid();}};
+
+$('#fab').onclick=newAnl;
+$('#meBtn').onclick=showProfile;
+$('#bellBtn').onclick=showBell;
+$('#enablePush').onclick=()=>{state.pushOn=true;$('#pushPrompt').hidden=true;toast('Mitteilungen sind an.');setTimeout(()=>pushBanner('Toni Fuchs hat bei „Heuernte“ zugesagt.'),900);};
+document.addEventListener('click',e=>{
+  if(e.target.id==='testPush')pushBanner('Almabtrieb: Treffpunkt wegen Regen um eine Stunde verschoben.');
+  if(e.target.id==='n-send'){
+    const t=$('#n-t').value.trim();
+    if(!t){toast('Eine Überschrift braucht es schon.');$('#n-t').focus();return;}
+    const cat=$$('.seg .pill').find(p=>p.getAttribute('aria-pressed')==='true').textContent;
+    const key=Object.keys(catName).find(k=>catName[k]===cat)||'hilfe';
+    const asv=$('#n-as').value.replace(' (ich)','');
+    const imgs=$$('#picker [aria-pressed="true"]').map(d=>[d.dataset.pick,d.dataset.label]);
+    let link=null; const lv=$('#n-l').value.trim(); if(lv){const url=lv.startsWith('http')?lv:'https://'+lv;link={url,title:url.replace(/^https?:\/\//,'')};}
+    anliegen.unshift({id:Date.now(),cat:key,by:asv,when:'gerade eben',declined:false,title:t,text:$('#n-x').value.trim()||'Details folgen.',need:+($('#n-n').value)||0,imgs,link,in:[],comments:[]});
+    renderAnl();closeSheet();showTab('anliegen');toast('Veröffentlicht. Sichtbar für alle im Tal.');
+  }
+});
+$('#cmt-send').onclick=()=>{
+  const v=$('#cmt-in').value.trim(); if(!v||!current||current.type!=='anl')return;
+  const a=anliegen.find(x=>x.id===current.id); a.comments.push({who:me.name,t:v,when:'gerade eben'});
+  $('#cmt-in').value='';showAnl(a.id);renderAnl();sc.scrollTop=sc.scrollHeight;
+};
+$('#cmt-in').addEventListener('keydown',e=>{if(e.key==='Enter')$('#cmt-send').click();});
+$('#loginBtn').onclick=$('#demoBtn').onclick=()=>{$('#onb').classList.add('hidden');setTimeout(()=>{if(!state.pushOn)toast('Willkommen zurück, Maria.');},300);};
+$$('[data-info]').forEach(b=>b.onclick=()=>$('#infosheet').classList.add('open'));
+$('#infoclose').onclick=()=>$('#infosheet').classList.remove('open');
+
+renderAnl();renderKal();renderPolls();renderIdeas();renderDorf();showTab('heute');
+})();
+</script>
+
+</body>
+</html>
