@@ -1,0 +1,20 @@
+{
+  "name": "krafttal-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend der Krafttal-App für die Kelchsau",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2"
+  }
+}

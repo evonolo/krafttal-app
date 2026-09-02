@@ -1,0 +1,22 @@
+services:
+  krafttal:
+    build: .
+    container_name: krafttal
+    restart: unless-stopped
+    ports:
+      # Links der Port auf der Synology, rechts der im Container.
+      - "3000:3000"
+    volumes:
+      # Datenbank und Fotos liegen außerhalb des Containers.
+      # Auf der Synology hier den echten Pfad eintragen,
+      # z. B. /volume1/docker/krafttal/data
+      - ./data:/data
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATA_DIR: /data
+      # Sobald die App über HTTPS erreichbar ist, hier die echte Adresse
+      # eintragen und SECURE_COOKIES auf true setzen.
+      PUBLIC_URL: http://localhost:3000
+      SECURE_COOKIES: "false"
+      SESSION_DAYS: "30"

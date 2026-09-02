@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Krafttal Kelchsau</title>
+<style>
+  body{font:16px/1.6 system-ui,sans-serif;margin:0;padding:2.5rem 1.5rem;
+       background:#F4F3EE;color:#2A3F31;display:flex;justify-content:center}
+  main{max-width:32rem}
+  h1{font-size:1.5rem;margin:0 0 .5rem}
+  code{background:#E5E3DA;padding:.15em .4em;border-radius:.25rem;font-size:.9em}
+  .status{margin-top:1.5rem;padding:1rem;border-radius:.5rem;background:#fff;
+          border-left:3px solid #3E5F45}
+</style>
+</head>
+<body>
+<main>
+  <h1>Krafttal-App</h1>
+  <p>Der Server läuft. Die Oberfläche wird in Stufe&nbsp;3 angebunden — bis dahin
+     bleibt der klickbare Prototyp die Ansicht zum Herzeigen.</p>
+  <div class="status" id="status">Status wird geprüft …</div>
+</main>
+<script>
+fetch('/api/health')
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById('status').innerHTML =
+      'Server erreichbar. Datenbank mit <b>' + d.datenbank.tabellen +
+      '</b> Tabellen bereit.';
+  })
+  .catch(() => {
+    document.getElementById('status').textContent =
+      'Server antwortet nicht.';
+  });
+</script>
+</body>
+</html>
