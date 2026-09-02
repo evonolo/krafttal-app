@@ -5,34 +5,359 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Krafttal Kelchsau</title>
 <style>
-  body{font:16px/1.6 system-ui,sans-serif;margin:0;padding:2.5rem 1.5rem;
-       background:#F4F3EE;color:#2A3F31;display:flex;justify-content:center}
-  main{max-width:32rem}
-  h1{font-size:1.5rem;margin:0 0 .5rem}
-  code{background:#E5E3DA;padding:.15em .4em;border-radius:.25rem;font-size:.9em}
-  .status{margin-top:1.5rem;padding:1rem;border-radius:.5rem;background:#fff;
-          border-left:3px solid #3E5F45}
+  :root{
+    --gruen:#3E5F45; --dunkel:#2A3F31; --papier:#F4F3EE; --karte:#fff;
+    --rand:#DDD9CD; --grau:#6B7169; --rot:#9B3B2E; --orange:#B8762E;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--papier);color:var(--dunkel);
+       font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
+  .huelle{max-width:30rem;margin:0 auto;padding:1.25rem}
+  h1,h2{font-family:Georgia,"Times New Roman",serif;font-weight:600;margin:0 0 .4rem}
+  h1{font-size:1.75rem} h2{font-size:1.2rem;margin-top:0}
+  p{margin:.4rem 0 1rem}
+  .klein{font-size:.85rem;color:var(--grau)}
+
+  header{background:var(--gruen);color:#fff;padding:1.5rem 1.25rem 1.25rem}
+  header .huelle{padding:0}
+  header .marke{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;opacity:.8}
+  header h1{color:#fff;margin:0}
+  header .konto{display:flex;justify-content:space-between;align-items:center;
+                margin-top:.75rem;font-size:.85rem;opacity:.95}
+
+  .karte{background:var(--karte);border:1px solid var(--rand);border-radius:.6rem;
+         padding:1.1rem;margin-bottom:.85rem}
+
+  label{display:block;font-size:.8rem;font-weight:600;margin:.7rem 0 .25rem}
+  input,select{width:100%;padding:.7rem .8rem;border:1px solid var(--rand);
+               border-radius:.45rem;font:inherit;background:#fff;color:inherit}
+  input:focus,select:focus{outline:2px solid var(--gruen);outline-offset:1px}
+
+  button{font:inherit;font-weight:600;border:0;border-radius:.45rem;
+         padding:.75rem 1rem;cursor:pointer;background:var(--gruen);color:#fff;width:100%}
+  button:hover{filter:brightness(1.08)}
+  button:disabled{opacity:.5;cursor:default;filter:none}
+  button.leer{background:#fff;color:var(--dunkel);border:1px solid var(--rand)}
+  button.klein{width:auto;padding:.4rem .7rem;font-size:.8rem}
+  button.warn{background:var(--rot)}
+  button.zweit{background:var(--orange)}
+  .knoepfe{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.6rem}
+
+  .meldung{padding:.7rem .85rem;border-radius:.45rem;font-size:.9rem;margin:.75rem 0}
+  .meldung.fehler{background:#F7E8E4;color:var(--rot);border-left:3px solid var(--rot)}
+  .meldung.gut{background:#E7EFE7;color:var(--gruen);border-left:3px solid var(--gruen)}
+
+  .reiter{display:flex;gap:.3rem;margin-bottom:.85rem;flex-wrap:wrap}
+  .reiter button{width:auto;background:#fff;color:var(--grau);border:1px solid var(--rand);
+                 padding:.45rem .8rem;font-size:.85rem}
+  .reiter button[aria-selected="true"]{background:var(--gruen);color:#fff;border-color:var(--gruen)}
+
+  .person{border-bottom:1px solid var(--rand);padding:.85rem 0}
+  .person:last-child{border-bottom:0;padding-bottom:0}
+  .person .kopf{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem}
+  .person b{font-size:1rem}
+  .marker{font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+          padding:.15rem .45rem;border-radius:.25rem;white-space:nowrap}
+  .marker.offen{background:#F6EDDC;color:#8A5A16}
+  .marker.frei{background:#E7EFE7;color:var(--gruen)}
+  .marker.gesperrt{background:#F7E8E4;color:var(--rot)}
+  .marker.admin{background:#E4E9F2;color:#3B4E70}
+  .leerhinweis{color:var(--grau);font-size:.9rem;padding:.75rem 0}
+  [hidden]{display:none!important}
 </style>
 </head>
 <body>
-<main>
-  <h1>Krafttal-App</h1>
-  <p>Der Server läuft. Die Oberfläche wird in Stufe&nbsp;3 angebunden — bis dahin
-     bleibt der klickbare Prototyp die Ansicht zum Herzeigen.</p>
-  <div class="status" id="status">Status wird geprüft …</div>
+
+<header>
+  <div class="huelle">
+    <div class="marke">Kelchsau</div>
+    <h1>Krafttal</h1>
+    <div class="konto" id="kontoLeiste" hidden>
+      <span id="kontoName"></span>
+      <button class="klein leer" id="abmelden" style="width:auto">Abmelden</button>
+    </div>
+  </div>
+</header>
+
+<main class="huelle">
+
+  <!-- Startseite -->
+  <section id="sicht-start" hidden>
+    <div class="karte">
+      <h2>Für alle, die hier daheim sind</h2>
+      <p class="klein">Zugang bekommt, wer in der Kelchsau wohnt oder hier einen Betrieb
+         hat. Das Krafttal-Team prüft jede Anmeldung von Hand.</p>
+      <div class="knoepfe">
+        <button id="zuRegister">Ich bin neu hier</button>
+        <button class="leer" id="zuLogin">Schon freigeschaltet? Anmelden</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Registrierung -->
+  <section id="sicht-register" hidden>
+    <div class="karte">
+      <h2>Anmeldung</h2>
+      <p class="klein">Ein paar Angaben, damit wir wissen, wer du bist.</p>
+      <form id="formRegister">
+        <label for="r-name">Vor- und Nachname</label>
+        <input id="r-name" name="name" autocomplete="name" required>
+
+        <label for="r-email">E-Mail-Adresse</label>
+        <input id="r-email" name="email" type="email" autocomplete="email" required>
+
+        <label for="r-pass">Passwort <span class="klein">(mindestens 8 Zeichen)</span></label>
+        <input id="r-pass" name="passwort" type="password" autocomplete="new-password"
+               minlength="8" required>
+
+        <label for="r-adresse">Adresse in der Kelchsau</label>
+        <input id="r-adresse" name="adresse" autocomplete="street-address">
+
+        <label for="r-tel">Handynummer</label>
+        <input id="r-tel" name="telefon" type="tel" autocomplete="tel">
+
+        <label for="r-rolle">Ich bin hier</label>
+        <select id="r-rolle" name="rolle">
+          <option value="einwohner">Einwohner:in</option>
+          <option value="betrieb">Betrieb</option>
+          <option value="verein">Verein</option>
+          <option value="zweitwohnsitz">Zweitwohnsitz</option>
+        </select>
+
+        <label for="r-ref">Wer aus dem Tal kennt dich?
+          <span class="klein">(optional, hilft beim Freischalten)</span></label>
+        <input id="r-ref" name="referenz">
+
+        <div class="knoepfe">
+          <button type="submit">Anmeldung abschicken</button>
+          <button type="button" class="leer" data-zurueck>Zurück</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Login -->
+  <section id="sicht-login" hidden>
+    <div class="karte">
+      <h2>Anmelden</h2>
+      <form id="formLogin">
+        <label for="l-email">E-Mail-Adresse</label>
+        <input id="l-email" name="email" type="email" autocomplete="email" required>
+        <label for="l-pass">Passwort</label>
+        <input id="l-pass" name="passwort" type="password" autocomplete="current-password" required>
+        <div class="knoepfe">
+          <button type="submit">Anmelden</button>
+          <button type="button" class="leer" data-zurueck>Zurück</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Warteschleife -->
+  <section id="sicht-warten" hidden>
+    <div class="karte">
+      <h2>Danke, <span id="wartenName"></span>.</h2>
+      <p>Jemand vom Krafttal-Team schaut sich deine Anmeldung an und schaltet dich frei.
+         Du bekommst eine Nachricht, sobald es so weit ist.</p>
+      <p class="klein">Solange du wartest, kannst du dich schon anmelden. Beiträge
+         schreiben, zusagen und abstimmen geht erst nach der Freischaltung.</p>
+    </div>
+  </section>
+
+  <!-- Angemeldet -->
+  <section id="sicht-app" hidden>
+    <div class="karte">
+      <h2>Du bist angemeldet</h2>
+      <p class="klein">Anliegen, Kalender, Vereine und Abstimmungen werden in Stufe 3
+         angebunden. Bis dahin zeigt der Prototyp, wie das aussehen wird.</p>
+    </div>
+
+    <!-- Admin-Bereich -->
+    <div id="adminBereich" hidden>
+      <div class="karte">
+        <h2>Krafttal-Team</h2>
+        <p class="klein" id="adminZaehler"></p>
+        <div class="reiter" id="adminReiter">
+          <button data-status="pending" aria-selected="true">Offen</button>
+          <button data-status="active" aria-selected="false">Freigeschaltet</button>
+          <button data-status="blocked" aria-selected="false">Gesperrt</button>
+        </div>
+        <div id="adminListe"></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="meldung"></div>
 </main>
+
 <script>
-fetch('/api/health')
-  .then(r => r.json())
-  .then(d => {
-    document.getElementById('status').innerHTML =
-      'Server erreichbar. Datenbank mit <b>' + d.datenbank.tabellen +
-      '</b> Tabellen bereit.';
-  })
-  .catch(() => {
-    document.getElementById('status').textContent =
-      'Server antwortet nicht.';
+const $ = (s) => document.querySelector(s);
+const sichten = ['start','register','login','warten','app'];
+let ich = null;
+let reiterStatus = 'pending';
+
+function zeige(name){
+  for (const s of sichten) $('#sicht-'+s).hidden = (s !== name);
+}
+function melde(text, art='fehler'){
+  $('#meldung').innerHTML = text ? `<div class="meldung ${art}">${escape_(text)}</div>` : '';
+  if (text) window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'});
+}
+function escape_(s){
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function api(methode, pfad, daten){
+  const r = await fetch(pfad, {
+    method: methode,
+    headers: {'content-type':'application/json'},
+    body: daten === undefined ? undefined : JSON.stringify(daten),
   });
+  let body = null;
+  try { body = await r.json(); } catch {}
+  if (!r.ok) throw new Error(body?.error || `Fehler ${r.status}`);
+  return body;
+}
+
+// ---------- Anzeige nach Status ----------
+
+function nachAnmeldung(user){
+  ich = user;
+  melde('');
+  $('#kontoLeiste').hidden = !user;
+  if (!user){ zeige('start'); return; }
+
+  $('#kontoName').textContent = user.name + (user.admin ? ' · Team' : '');
+
+  if (user.status === 'pending'){
+    $('#wartenName').textContent = user.name.split(' ')[0];
+    zeige('warten');
+    return;
+  }
+  zeige('app');
+  $('#adminBereich').hidden = !user.admin;
+  if (user.admin) ladeAdmin();
+}
+
+// ---------- Admin ----------
+
+async function ladeAdmin(){
+  try {
+    const d = await api('GET', '/api/admin/users?status=' + reiterStatus);
+    const z = d.zaehler;
+    $('#adminZaehler').textContent =
+      `${z.offen} offen · ${z.frei} freigeschaltet · ${z.gesperrt} gesperrt · ${z.admins} im Team`;
+    $('#adminListe').innerHTML = d.users.length
+      ? d.users.map(zeile).join('')
+      : `<div class="leerhinweis">Hier ist gerade nichts.</div>`;
+  } catch (e) { melde(e.message); }
+}
+
+function zeile(u){
+  const marker = u.status === 'pending' ? '<span class="marker offen">offen</span>'
+    : u.status === 'blocked' ? '<span class="marker gesperrt">gesperrt</span>'
+    : '<span class="marker frei">frei</span>';
+  const adminMarker = u.admin ? ' <span class="marker admin">Team</span>' : '';
+  const selbst = ich && u.id === ich.id;
+
+  const zeilen = [u.email, u.adresse, u.telefon, u.rolle]
+    .filter(Boolean).map(escape_).join(' · ');
+  const ref = u.referenz ? `<div class="klein">Kennt: ${escape_(u.referenz)}</div>` : '';
+  const grund = u.grund ? `<div class="klein">Grund: ${escape_(u.grund)}</div>` : '';
+
+  let knoepfe = '';
+  if (u.status === 'pending')
+    knoepfe += `<button class="klein" data-tu="freischalten" data-id="${u.id}">Freischalten</button>`;
+  if (u.status === 'blocked')
+    knoepfe += `<button class="klein" data-tu="entsperren" data-id="${u.id}">Entsperren</button>`;
+  if (u.status === 'active' && !selbst)
+    knoepfe += `<button class="klein warn" data-tu="sperren" data-id="${u.id}">Sperren</button>`;
+  if (u.status === 'active')
+    knoepfe += u.admin
+      ? `<button class="klein leer" data-tu="absetzen" data-id="${u.id}">Aus dem Team nehmen</button>`
+      : `<button class="klein zweit" data-tu="ernennen" data-id="${u.id}">Ins Team aufnehmen</button>`;
+
+  return `<div class="person">
+    <div class="kopf"><b>${escape_(u.name)}${selbst ? ' (du)' : ''}</b>${marker}${adminMarker}</div>
+    <div class="klein">${zeilen}</div>${ref}${grund}
+    <div class="knoepfe">${knoepfe}</div>
+  </div>`;
+}
+
+// ---------- Ereignisse ----------
+
+$('#zuRegister').onclick = () => { melde(''); zeige('register'); };
+$('#zuLogin').onclick    = () => { melde(''); zeige('login'); };
+document.querySelectorAll('[data-zurueck]').forEach(b =>
+  b.onclick = () => { melde(''); zeige('start'); });
+
+$('#formRegister').onsubmit = async (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  const knopf = e.target.querySelector('button[type=submit]');
+  knopf.disabled = true;
+  try {
+    const d = await api('POST', '/api/register', f);
+    nachAnmeldung(d.user);
+    if (d.ersterAdmin) melde('Du bist die erste Person hier und damit im Krafttal-Team.', 'gut');
+  } catch (err) { melde(err.message); }
+  finally { knopf.disabled = false; }
+};
+
+$('#formLogin').onsubmit = async (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  const knopf = e.target.querySelector('button[type=submit]');
+  knopf.disabled = true;
+  try { nachAnmeldung((await api('POST','/api/login', f)).user); }
+  catch (err) { melde(err.message); }
+  finally { knopf.disabled = false; }
+};
+
+$('#abmelden').onclick = async () => {
+  await api('POST','/api/logout').catch(()=>{});
+  ich = null;
+  $('#kontoLeiste').hidden = true;
+  zeige('start');
+};
+
+$('#adminReiter').onclick = (e) => {
+  const b = e.target.closest('button[data-status]');
+  if (!b) return;
+  reiterStatus = b.dataset.status;
+  for (const x of $('#adminReiter').children)
+    x.setAttribute('aria-selected', String(x === b));
+  ladeAdmin();
+};
+
+$('#adminListe').onclick = async (e) => {
+  const b = e.target.closest('button[data-tu]');
+  if (!b) return;
+  const { tu, id } = b.dataset;
+  b.disabled = true;
+  try {
+    if (tu === 'freischalten') await api('POST', `/api/admin/users/${id}/freischalten`);
+    if (tu === 'entsperren')   await api('POST', `/api/admin/users/${id}/entsperren`);
+    if (tu === 'sperren'){
+      const grund = prompt('Grund für die Sperre (optional):') ?? '';
+      await api('POST', `/api/admin/users/${id}/sperren`, { grund });
+    }
+    if (tu === 'ernennen') await api('POST', `/api/admin/users/${id}/admin`, { admin: true });
+    if (tu === 'absetzen') await api('POST', `/api/admin/users/${id}/admin`, { admin: false });
+    melde('');
+    // Eigene Rechte können sich geändert haben.
+    ich = (await api('GET','/api/me')).user;
+    if (!ich?.admin) { nachAnmeldung(ich); return; }
+    ladeAdmin();
+  } catch (err) { melde(err.message); b.disabled = false; }
+};
+
+// ---------- Start ----------
+
+api('GET','/api/me')
+  .then(d => nachAnmeldung(d.user))
+  .catch(() => { melde('Server nicht erreichbar.'); zeige('start'); });
 </script>
 </body>
 </html>

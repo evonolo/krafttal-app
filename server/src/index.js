@@ -4,6 +4,9 @@ import cookieParser from 'cookie-parser';
 import { config } from './config.js';
 import { migrate, dbInfo } from './db.js';
 import { healthRouter } from './routes/health.js';
+import { authRouter } from './routes/auth.js';
+import { adminRouter } from './routes/admin.js';
+import { loadUser, purgeExpiredSessions } from './auth.js';
 
 migrate();
 
@@ -17,7 +20,12 @@ app.disable('x-powered-by');
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 
+// Vor allen Routen: Sitzung einlesen, falls vorhanden.
+app.use(loadUser);
+
 app.use('/api', healthRouter);
+app.use('/api', authRouter);
+app.use('/api/admin', adminRouter);
 
 // Die Oberfläche wird als statische Datei ausgeliefert.
 app.use(express.static(config.webDir));
@@ -26,6 +34,10 @@ app.use(express.static(config.webDir));
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'Nicht gefunden' });
 });
+
+// Abgelaufene Sitzungen beim Start und danach einmal am Tag wegräumen.
+purgeExpiredSessions();
+setInterval(purgeExpiredSessions, 24 * 60 * 60 * 1000).unref();
 
 app.listen(config.port, () => {
   const info = dbInfo();
