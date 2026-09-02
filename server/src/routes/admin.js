@@ -1,7 +1,8 @@
 // Admin-Bereich: freischalten, sperren, Administratoren ernennen.
 import express from 'express';
 import { db } from '../db.js';
-import { requireAdmin } from '../auth.js';
+import crypto from 'node:crypto';
+import { requireAdmin, hashPassword } from '../auth.js';
 
 export const adminRouter = express.Router();
 adminRouter.use(requireAdmin);
@@ -141,4 +142,119 @@ adminRouter.post('/users/:id/admin', (req, res) => {
 
   db.prepare(`UPDATE users SET is_admin = ? WHERE id = ?`).run(soll ? 1 : 0, u.id);
   res.json({ ok: true, user: adminUser(db.prepare(`SELECT * FROM users WHERE id=?`).get(u.id)) });
+});
+
+// ---------- Meldungen ----------
+//
+// "Beitrag melden" schreibt hierher. Ohne diese Ansicht liefe jede Meldung
+// ins Leere.
+
+adminRouter.get('/meldungen', (req, res) => {
+  const offen = req.query.erledigt !== '1';
+
+  const rows = db.prepare(`
+    SELECT r.*, u.name AS melder
+    FROM reports r JOIN users u ON u.id = r.user_id
+    WHERE r.handled = ?
+    ORDER BY r.created_at DESC
+  `).all(offen ? 0 : 1);
+
+  // Zu jeder Meldung den gemeldeten Beitrag dazuholen, damit man ihn
+  // beurteilen kann, ohne ihn zu suchen.
+  const meldungen = rows.map((r) => {
+    let beitrag = null;
+    if (r.target_type === 'anliegen') {
+      const a = db.prepare(`
+        SELECT a.id, a.title, a.text, a.status, u.name AS user_name, o.name AS org_name
+        FROM anliegen a JOIN users u ON u.id = a.user_id
+        LEFT JOIN orgs o ON o.id = a.org_id WHERE a.id = ?
+      `).get(r.target_id);
+      if (a) beitrag = {
+        id: a.id, titel: a.title, text: a.text,
+        autor: a.org_name || a.user_name, ausgeblendet: a.status === 'hidden',
+      };
+    }
+    return {
+      id: r.id,
+      art: r.target_type,
+      zielId: r.target_id,
+      melder: r.melder,
+      grund: r.reason,
+      wann: r.created_at,
+      erledigt: !!r.handled,
+      beitrag,           // null, wenn der Beitrag inzwischen weg ist
+    };
+  });
+
+  res.json({
+    meldungen,
+    zaehler: {
+      offen: db.prepare(`SELECT COUNT(*) AS c FROM reports WHERE handled = 0`).get().c,
+      erledigt: db.prepare(`SELECT COUNT(*) AS c FROM reports WHERE handled = 1`).get().c,
+    },
+  });
+});
+
+adminRouter.post('/meldungen/:id/erledigt', (req, res) => {
+  const r = db.prepare(`SELECT * FROM reports WHERE id = ?`).get(Number(req.params.id));
+  if (!r) return res.status(404).json({ error: 'Meldung nicht gefunden.' });
+  db.prepare(`UPDATE reports SET handled = 1 WHERE id = ?`).run(r.id);
+  res.json({ ok: true });
+});
+
+// Gemeldeten Beitrag ausblenden und die Meldung gleich abhaken.
+adminRouter.post('/meldungen/:id/ausblenden', (req, res) => {
+  const r = db.prepare(`SELECT * FROM reports WHERE id = ?`).get(Number(req.params.id));
+  if (!r) return res.status(404).json({ error: 'Meldung nicht gefunden.' });
+  if (r.target_type !== 'anliegen') {
+    return res.status(400).json({ error: 'Das lässt sich hier nicht ausblenden.' });
+  }
+  db.prepare(`UPDATE anliegen SET status = 'hidden' WHERE id = ?`).run(r.target_id);
+  db.prepare(`UPDATE reports SET handled = 1 WHERE id = ?`).run(r.id);
+  res.json({ ok: true });
+});
+
+// ---------- Passwort zurücksetzen ----------
+//
+// Ohne Mailversand kann sich niemand selbst aussperren-frei helfen. Deshalb
+// erzeugt das Team ein neues Passwort und gibt es der Person weiter, etwa
+// am Telefon. Es wird genau einmal angezeigt und ist danach nicht mehr
+// auslesbar - gespeichert wird nur die Prüfsumme.
+
+// Zeichen ohne Verwechslungsgefahr: kein l/1/I, kein O/0.
+const ZEICHEN = 'abcdefghijkmnpqrstuvwxyz23456789';
+
+function neuesPasswort() {
+  const bytes = crypto.randomBytes(12);
+  let s = '';
+  for (let i = 0; i < 12; i++) {
+    s += ZEICHEN[bytes[i] % ZEICHEN.length];
+    if (i === 3 || i === 7) s += '-';
+  }
+  return s;
+}
+
+adminRouter.post('/users/:id/passwort', (req, res) => {
+  const u = ladeKonto(req, res);
+  if (!u) return;
+
+  // Das eigene Passwort hier zurückzusetzen würde die eigene Sitzung beenden -
+  // man stünde mit einem Zufallspasswort da, ohne es zu merken. Dafür gibt es
+  // "Passwort ändern" im Profil.
+  if (u.id === req.user.id) {
+    return res.status(400).json({
+      error: 'Das eigene Passwort änderst du im Profil unter „Passwort ändern".',
+    });
+  }
+
+  const passwort = neuesPasswort();
+  db.prepare(`UPDATE users SET password_hash = ? WHERE id = ?`).run(hashPassword(passwort), u.id);
+  // Alle laufenden Anmeldungen beenden.
+  db.prepare(`DELETE FROM sessions WHERE user_id = ?`).run(u.id);
+
+  res.json({
+    ok: true,
+    passwort,
+    hinweis: 'Gib das Passwort persönlich oder telefonisch weiter. Es wird nur jetzt angezeigt.',
+  });
 });

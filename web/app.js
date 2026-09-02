@@ -58,6 +58,7 @@ const zustand = {
   filterKal: 'alle',
   filterDorf: 'verein',
   adminStatus: 'pending',
+  meldungErledigt: '0',
   monat: new Date().getMonth(),
   jahr: new Date().getFullYear(),
   gewaehlterTag: null,
@@ -109,6 +110,7 @@ function zeigeTab(name) {
   if (name === 'kalender') ladeTermine();
   if (name === 'dorf') ladeOrgs();
   if (name === 'profil') ladeProfil();
+  else if ($('#fPasswort')) $('#fPasswort').hidden = true;
 }
 
 // ---------- Anliegen ----------
@@ -175,7 +177,9 @@ async function oeffneAnliegen(id) {
           ${a.ichDabei ? 'Doch nicht' : 'Ich bin dabei'}</button>` : ''}
         ${!a.eigenes && !a.abgelehnt ? `<button class="kompakt leer" data-tu="absage" data-id="${a.id}">Absagen</button>` : ''}
         ${a.abgelehnt ? `<button class="kompakt leer" data-tu="zurueckholen" data-id="${a.id}">Zurückholen</button>` : ''}
-        ${a.eigenes ? `<button class="kompakt warn" data-tu="zurueckziehen" data-id="${a.id}">Zurückziehen</button>` : ''}
+        ${a.darfBearbeiten ? `
+          <button class="kompakt leer" data-tu="anliegenBearbeiten" data-id="${a.id}">Bearbeiten</button>
+          <button class="kompakt warn" data-tu="zurueckziehen" data-id="${a.id}">Zurückziehen</button>` : ''}
       </div>
 
       <h3 style="margin-top:1.2rem">Kommentare</h3>
@@ -332,8 +336,58 @@ async function oeffneOrg(id) {
       </div>
       <p class="mini">${istVerein
         ? 'Die Vereinsleitung bestätigt die Mitgliedschaft.'
-        : 'Das Krafttal-Team bestätigt nach Rücksprache mit dem Betrieb.'}</p>`);
+        : 'Das Krafttal-Team bestätigt nach Rücksprache mit dem Betrieb.'}</p>
+      <div id="mitgliederBereich"></div>`);
+    if (o.darfVerwalten) ladeMitglieder(o.id);
   } catch (e) { melde(e.message); }
+}
+
+// ---------- Mitglieder einer Organisation ----------
+
+async function ladeMitglieder(orgId) {
+  const ziel = $('#mitgliederBereich');
+  if (!ziel) return;
+  try {
+    const d = await api('GET', `/api/orgs/${orgId}/mitglieder`);
+    const offen = d.mitglieder.filter((m) => m.status === 'pending');
+    const dabei = d.mitglieder.filter((m) => m.status === 'active');
+
+    const ROLLEN = { member: 'Mitglied', poster: 'darf posten', admin: 'Leitung' };
+
+    ziel.innerHTML = `
+      <h3 style="margin-top:1.2rem">Mitglieder verwalten</h3>
+      ${offen.length ? `<div class="mini">Offene Anfragen</div>` : ''}
+      ${offen.map((m) => `
+        <div class="kommentar">
+          <div class="kopfzeile"><b>${esc(m.name)}</b><span class="marker offen">offen</span></div>
+          <div class="mini">${esc(m.email)}</div>
+          <div class="knoepfe">
+            <button class="kompakt" data-mg="bestaetigen" data-org="${orgId}" data-user="${m.id}"
+                    data-rolle="member">Als Mitglied</button>
+            <button class="kompakt zweit" data-mg="bestaetigen" data-org="${orgId}" data-user="${m.id}"
+                    data-rolle="poster">Mitglied, darf posten</button>
+            <button class="kompakt leer" data-mg="bestaetigen" data-org="${orgId}" data-user="${m.id}"
+                    data-rolle="admin">Leitung</button>
+            <button class="kompakt warn" data-mg="entfernen" data-org="${orgId}" data-user="${m.id}">Ablehnen</button>
+          </div>
+        </div>`).join('')}
+      ${dabei.length ? `<div class="mini" style="margin-top:.6rem">Dabei</div>` : ''}
+      ${dabei.map((m) => `
+        <div class="kommentar">
+          <div class="kopfzeile"><b>${esc(m.name)}</b>
+            <span class="marker ${m.rolle === 'admin' ? 'team' : 'frei'}">${ROLLEN[m.rolle]}</span></div>
+          <div class="knoepfe">
+            ${m.rolle !== 'poster' ? `<button class="kompakt leer" data-mg="bestaetigen" data-org="${orgId}"
+              data-user="${m.id}" data-rolle="poster">Posten erlauben</button>` : ''}
+            ${m.rolle === 'poster' ? `<button class="kompakt leer" data-mg="bestaetigen" data-org="${orgId}"
+              data-user="${m.id}" data-rolle="member">Posten entziehen</button>` : ''}
+            ${m.rolle !== 'admin' ? `<button class="kompakt leer" data-mg="bestaetigen" data-org="${orgId}"
+              data-user="${m.id}" data-rolle="admin">Zur Leitung machen</button>` : ''}
+            <button class="kompakt warn" data-mg="entfernen" data-org="${orgId}" data-user="${m.id}">Entfernen</button>
+          </div>
+        </div>`).join('')}
+      ${!offen.length && !dabei.length ? '<div class="mini">Noch niemand dabei.</div>' : ''}`;
+  } catch (e) { ziel.innerHTML = `<div class="mini">${esc(e.message)}</div>`; }
 }
 
 // ---------- Profil und Admin ----------
@@ -344,7 +398,63 @@ async function ladeProfil() {
   $('#profilInfo').textContent =
     `${u.email} · ${u.rolle}${u.admin ? ' · Krafttal-Team' : ''}`;
   $('#adminKarte').hidden = !u.admin;
-  if (u.admin) ladeAdmin();
+  $('#meldungenKarte').hidden = !u.admin;
+  if (u.admin) { ladeAdmin(); ladeMeldungen(); }
+  ladeBetreute();
+}
+
+// ---------- Meldungen ----------
+
+async function ladeMeldungen() {
+  try {
+    const d = await api('GET', '/api/admin/meldungen?erledigt=' + zustand.meldungErledigt);
+    $('#meldungenZaehler').textContent =
+      `${d.zaehler.offen} offen · ${d.zaehler.erledigt} erledigt`;
+    $('#meldungenListe').innerHTML = d.meldungen.length
+      ? d.meldungen.map(meldungZeile).join('')
+      : '<div class="leerhinweis">Keine Meldungen.</div>';
+  } catch (e) { melde(e.message); }
+}
+
+function meldungZeile(m) {
+  const b = m.beitrag;
+  return `<div class="kommentar">
+    <div class="kopfzeile">
+      <b>${b ? esc(b.titel) : 'Beitrag nicht mehr vorhanden'}</b>
+      <span class="mini">${seit(m.wann)}</span>
+    </div>
+    ${b ? `<div class="mini">von ${esc(b.autor)}${b.ausgeblendet ? ' · bereits ausgeblendet' : ''}</div>
+           <div class="klein">${esc((b.text || '').slice(0, 200))}</div>` : ''}
+    <div class="mini">Gemeldet von ${esc(m.melder)}${m.grund ? `: „${esc(m.grund)}"` : ' (ohne Angabe)'}</div>
+    ${m.erledigt ? '' : `<div class="knoepfe">
+      ${b && !b.ausgeblendet
+        ? `<button class="kompakt warn" data-me="ausblenden" data-id="${m.id}">Beitrag ausblenden</button>` : ''}
+      <button class="kompakt leer" data-me="erledigt" data-id="${m.id}">Erledigt, nichts zu tun</button>
+    </div>`}
+  </div>`;
+}
+
+// ---------- Von mir betreute Vereine und Betriebe ----------
+
+async function ladeBetreute() {
+  try {
+    const d = await api('GET', '/api/orgs/meine/verwalten');
+    // Für das Team wären das alle - dort steht die Verwaltung ohnehin
+    // auf jeder Vereinsseite. Hier nur zeigen, wenn etwas offen ist.
+    const zeigen = zustand.ich.admin
+      ? d.orgs.filter((o) => o.offeneAnfragen > 0)
+      : d.orgs;
+    $('#verwalteKarte').hidden = zeigen.length === 0;
+    $('#verwalteListe').innerHTML = zeigen.map((o) => `
+      <div class="org ${o.art}" data-org="${o.id}">
+        <div style="flex:1"><b>${esc(o.name)}</b>
+          <div class="mini">${o.offeneAnfragen
+            ? `${o.offeneAnfragen} offene ${o.offeneAnfragen === 1 ? 'Anfrage' : 'Anfragen'}`
+            : 'keine offenen Anfragen'}</div>
+        </div>
+        ${o.offeneAnfragen ? '<span class="marker offen">offen</span>' : ''}
+      </div>`).join('');
+  } catch { $('#verwalteKarte').hidden = true; }
 }
 
 async function ladeAdmin() {
@@ -373,6 +483,9 @@ function adminZeile(u) {
   if (u.status === 'active') k += u.admin
     ? `<button class="kompakt leer" data-au="absetzen" data-id="${u.id}">Aus dem Team</button>`
     : `<button class="kompakt zweit" data-au="ernennen" data-id="${u.id}">Ins Team</button>`;
+  // Nicht beim eigenen Konto: das würde die eigene Sitzung beenden.
+  if (u.status !== 'blocked' && !selbst)
+    k += `<button class="kompakt leer" data-au="passwort" data-id="${u.id}">Passwort zurücksetzen</button>`;
 
   return `<div class="kommentar">
     <div class="kopfzeile"><b>${esc(u.name)}${selbst ? ' (du)' : ''}</b>
@@ -397,31 +510,47 @@ function blattZu() {
 
 // ---------- Neues Anliegen / neuer Termin ----------
 
-function formularNeuesAnliegen() {
+// Dasselbe Formular für neue und bestehende Anliegen.
+function formularAnliegen(a = null) {
+  const wert = (v) => esc(v ?? '');
+  const gewaehlt = (v, soll) => (v === soll ? ' selected' : '');
   const alsOrg = zustand.meineOrgs.length
     ? `<label>Veröffentlichen als</label>
        <select id="n-org">
          <option value="">${esc(zustand.ich.name)}</option>
-         ${zustand.meineOrgs.map((o) => `<option value="${o.id}">${esc(o.name)}</option>`).join('')}
+         ${zustand.meineOrgs.map((o) =>
+           `<option value="${o.id}"${a && a.autor.orgId === o.id ? ' selected' : ''}>${esc(o.name)}</option>`).join('')}
        </select>` : '';
   blattAuf(`
-    <h2>Neues Anliegen</h2>
+    <h2>${a ? 'Anliegen bearbeiten' : 'Neues Anliegen'}</h2>
     <label>Was ist es?</label>
     <select id="n-kat">
-      <option value="hilfe">Hilfe gesucht</option>
-      <option value="biete">Biete</option>
-      <option value="hinweis">Hinweis</option>
-      <option value="fund">Verloren / Gefunden</option>
+      <option value="hilfe"${gewaehlt(a?.kategorie,'hilfe')}>Hilfe gesucht</option>
+      <option value="biete"${gewaehlt(a?.kategorie,'biete')}>Biete</option>
+      <option value="hinweis"${gewaehlt(a?.kategorie,'hinweis')}>Hinweis</option>
+      <option value="fund"${gewaehlt(a?.kategorie,'fund')}>Verloren / Gefunden</option>
     </select>
-    <label>Titel</label><input id="n-titel" maxlength="200">
-    <label>Beschreibung</label><textarea id="n-text"></textarea>
+    <label>Titel</label><input id="n-titel" maxlength="200" value="${wert(a?.titel)}">
+    <label>Beschreibung</label><textarea id="n-text">${wert(a?.text)}</textarea>
     <label>Wie viele Leute brauchst du? <span class="klein">(0 = keine Zusagen nötig)</span></label>
-    <input id="n-bedarf" type="number" min="0" max="999" value="0">
+    <input id="n-bedarf" type="number" min="0" max="999" value="${a?.bedarf ?? 0}">
     ${alsOrg}
     <div class="knoepfe">
-      <button data-tu="anlegenAnliegen">Veröffentlichen</button>
+      <button data-tu="${a ? 'speichernAnliegen' : 'anlegenAnliegen'}"${a ? ` data-id="${a.id}"` : ''}>
+        ${a ? 'Änderung speichern' : 'Veröffentlichen'}</button>
       <button class="leer" data-tu="blattZu">Abbrechen</button>
     </div>`);
+}
+
+// Liest die Felder des Anliegen-Formulars aus.
+function anliegenFelder() {
+  return {
+    kategorie: $('#n-kat').value,
+    titel: $('#n-titel').value,
+    text: $('#n-text').value,
+    bedarf: Number($('#n-bedarf').value) || 0,
+    alsOrg: $('#n-org')?.value || null,
+  };
 }
 
 // Dasselbe Formular fuer neue und bestehende Termine. Ohne Argument leer,
@@ -496,6 +625,30 @@ $('#fLogin').onsubmit = async (e) => {
   knopf.disabled = true;
   try { nachAnmeldung((await api('POST', '/api/login', Object.fromEntries(new FormData(e.target)))).user); }
   catch (err) { melde(err.message); }
+  finally { knopf.disabled = false; }
+};
+
+$('#zuPasswort').onclick = () => {
+  const f = $('#fPasswort');
+  f.hidden = !f.hidden;
+  if (!f.hidden) $('#p-alt').focus();
+};
+$('#passwortAbbrechen').onclick = () => {
+  $('#fPasswort').hidden = true;
+  $('#p-alt').value = '';
+  $('#p-neu').value = '';
+};
+$('#fPasswort').onsubmit = async (e) => {
+  e.preventDefault();
+  const knopf = e.target.querySelector('button[type=submit]');
+  knopf.disabled = true;
+  try {
+    await api('POST', '/api/passwort', { alt: $('#p-alt').value, neu: $('#p-neu').value });
+    $('#fPasswort').hidden = true;
+    $('#p-alt').value = '';
+    $('#p-neu').value = '';
+    melde('Passwort geändert. Andere Geräte wurden abgemeldet.', 'gut');
+  } catch (err) { melde(err.message); }
   finally { knopf.disabled = false; }
 };
 
@@ -583,7 +736,7 @@ $('#orgListe').onclick = (e) => {
 
 $('#neuKnopf').onclick = () => {
   if (zustand.tab === 'kalender') formularTermin();
-  else formularNeuesAnliegen();
+  else formularAnliegen();
 };
 
 // Klick außerhalb schließt das Blatt
@@ -629,14 +782,18 @@ $('#blatt').addEventListener('click', async (e) => {
     if (tu === 'austreten') { await api('DELETE', `/api/orgs/${id}/beitreten`); await ladeOrgs(); return oeffneOrg(id); }
     if (tu === 'folgen')    { await api('POST', `/api/orgs/${id}/folgen`); return oeffneOrg(id); }
 
+    if (tu === 'anliegenBearbeiten') {
+      const { anliegen } = await api('GET', '/api/anliegen/' + id);
+      return formularAnliegen(anliegen);
+    }
+    if (tu === 'speichernAnliegen') {
+      await api('PUT', '/api/anliegen/' + id, anliegenFelder());
+      blattZu();
+      await ladeAnliegen();
+      return melde('Änderung gespeichert.', 'gut');
+    }
     if (tu === 'anlegenAnliegen') {
-      await api('POST', '/api/anliegen', {
-        kategorie: $('#n-kat').value,
-        titel: $('#n-titel').value,
-        text: $('#n-text').value,
-        bedarf: Number($('#n-bedarf').value) || 0,
-        alsOrg: $('#n-org')?.value || null,
-      });
+      await api('POST', '/api/anliegen', anliegenFelder());
       blattZu();
       return ladeAnliegen();
     }
@@ -671,6 +828,53 @@ $('#blatt').addEventListener('click', async (e) => {
   }
 });
 
+// Mitgliederverwaltung im Blatt
+$('#blatt').addEventListener('click', async (e) => {
+  const b = e.target.closest('button[data-mg]');
+  if (!b) return;
+  const { mg, org, user, rolle } = b.dataset;
+  b.disabled = true;
+  try {
+    if (mg === 'bestaetigen') await api('POST', `/api/orgs/${org}/mitglieder/${user}`, { rolle });
+    if (mg === 'entfernen') await api('DELETE', `/api/orgs/${org}/mitglieder/${user}`);
+    await ladeMitglieder(Number(org));
+    await ladeOrgs();
+    if (zustand.tab === 'profil') ladeBetreute();
+    // Eigene Posting-Rechte können sich geändert haben.
+    zustand.meineOrgs = (await api('GET', '/api/orgs/meine/posten')).orgs;
+  } catch (err) { melde(err.message); b.disabled = false; }
+});
+
+// Meldungen
+$('#fMeldungen').onclick = (e) => {
+  const b = e.target.closest('button[data-erledigt]');
+  if (!b) return;
+  zustand.meldungErledigt = b.dataset.erledigt;
+  for (const x of $('#fMeldungen').children) x.setAttribute('aria-selected', String(x === b));
+  ladeMeldungen();
+};
+
+$('#meldungenListe').onclick = async (e) => {
+  const b = e.target.closest('button[data-me]');
+  if (!b) return;
+  const { me: was, id } = b.dataset;
+  b.disabled = true;
+  try {
+    if (was === 'ausblenden') {
+      if (!confirm('Beitrag ausblenden? Er ist dann für alle weg.')) { b.disabled = false; return; }
+      await api('POST', `/api/admin/meldungen/${id}/ausblenden`);
+    }
+    if (was === 'erledigt') await api('POST', `/api/admin/meldungen/${id}/erledigt`);
+    ladeMeldungen();
+  } catch (err) { melde(err.message); b.disabled = false; }
+};
+
+// Betreute Organisation antippen öffnet ihre Seite
+$('#verwalteListe').onclick = (e) => {
+  const o = e.target.closest('[data-org]');
+  if (o) oeffneOrg(Number(o.dataset.org));
+};
+
 // Admin-Aktionen
 $('#adminListe').onclick = async (e) => {
   const b = e.target.closest('button[data-au]');
@@ -683,6 +887,24 @@ $('#adminListe').onclick = async (e) => {
     if (au === 'sperren') {
       const grund = prompt('Grund für die Sperre (optional):') ?? '';
       await api('POST', `/api/admin/users/${id}/sperren`, { grund });
+    }
+    if (au === 'passwort') {
+      if (!confirm('Neues Passwort erzeugen? Die Person wird überall abgemeldet.')) {
+        b.disabled = false;
+        return;
+      }
+      const r = await api('POST', `/api/admin/users/${id}/passwort`);
+      blattAuf(`
+        <h2>Neues Passwort</h2>
+        <p>Gib es persönlich oder telefonisch weiter. Es wird nur jetzt angezeigt
+           und lässt sich später nicht mehr auslesen.</p>
+        <p style="font-size:1.5rem;font-family:ui-monospace,monospace;letter-spacing:.05em;
+                  background:#fff;padding:.8rem;border-radius:.45rem;text-align:center">
+          ${esc(r.passwort)}</p>
+        <p class="klein">Die Person sollte es nach dem Anmelden im Profil ändern.</p>
+        <div class="knoepfe"><button data-tu="blattZu">Schließen</button></div>`);
+      b.disabled = false;
+      return;
     }
     if (au === 'ernennen') await api('POST', `/api/admin/users/${id}/admin`, { admin: true });
     if (au === 'absetzen') await api('POST', `/api/admin/users/${id}/admin`, { admin: false });

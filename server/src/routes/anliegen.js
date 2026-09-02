@@ -18,8 +18,19 @@ function darfAlsOrgPosten(userId, orgId) {
   return !!m;
 }
 
+// Ändern und löschen darf ausschließlich, wer das Anliegen eingestellt hat,
+// sowie das Krafttal-Team. Posting-Recht einer Organisation reicht nicht:
+// Wer im Namen der Musikkapelle posten darf, soll die Beiträge der anderen
+// Musikanten nicht ändern können.
+function darfBearbeiten(user, row) {
+  if (!user || user.status !== 'active') return false;
+  if (user.is_admin) return true;
+  return row.user_id === user.id;
+}
+
 // Ein Anliegen so, wie es die Oberfläche braucht.
-function baueAnliegen(row, userId) {
+function baueAnliegen(row, user) {
+  const userId = user?.id;
   const zusagen = db.prepare(`
     SELECT u.id, u.name FROM anliegen_joins j
     JOIN users u ON u.id = j.user_id
@@ -54,6 +65,7 @@ function baueAnliegen(row, userId) {
     ichDabei: zusagen.some((z) => z.id === userId),
     kommentarAnzahl: kommentare,
     abgelehnt: !!row.abgelehnt,
+    darfBearbeiten: darfBearbeiten(user, row),
   };
 }
 
@@ -84,7 +96,7 @@ anliegenRouter.get('/', requireActive, (req, res) => {
 
   if (KATEGORIEN.includes(filter)) rows = rows.filter((r) => r.cat === filter);
 
-  res.json({ anliegen: rows.map((r) => baueAnliegen(r, me)) });
+  res.json({ anliegen: rows.map((r) => baueAnliegen(r, req.user)) });
 });
 
 // ---------- Einzelnes Anliegen samt Kommentaren ----------
@@ -104,7 +116,7 @@ anliegenRouter.get('/:id', requireActive, (req, res) => {
 
   res.json({
     anliegen: {
-      ...baueAnliegen(row, me),
+      ...baueAnliegen(row, req.user),
       kommentare: kommentare.map((k) => ({
         id: k.id,
         wer: k.org_name || k.user_name,
@@ -139,7 +151,7 @@ anliegenRouter.post('/', requireActive, (req, res) => {
 
   const row = db.prepare(`${BASIS} AND a.id = @id`)
     .get({ me: req.user.id, id: info.lastInsertRowid });
-  res.status(201).json({ anliegen: baueAnliegen(row, req.user.id) });
+  res.status(201).json({ anliegen: baueAnliegen(row, req.user) });
 });
 
 // ---------- Zusagen ----------
@@ -156,7 +168,7 @@ anliegenRouter.post('/:id/zusage', requireActive, (req, res) => {
   else db.prepare(`INSERT INTO anliegen_joins (anliegen_id, user_id) VALUES (?, ?)`).run(id, req.user.id);
 
   const row = db.prepare(`${BASIS} AND a.id = @id`).get({ me: req.user.id, id });
-  res.json({ anliegen: baueAnliegen(row, req.user.id) });
+  res.json({ anliegen: baueAnliegen(row, req.user) });
 });
 
 // ---------- Absagen und zurückholen ----------
@@ -222,13 +234,50 @@ anliegenRouter.post('/:id/melden', requireActive, (req, res) => {
   res.json({ ok: true });
 });
 
+// ---------- Ändern ----------
+
+anliegenRouter.put('/:id', requireActive, (req, res) => {
+  const id = Number(req.params.id);
+  const a = db.prepare(`SELECT * FROM anliegen WHERE id = ? AND status='active'`).get(id);
+  if (!a) return res.status(404).json({ error: 'Anliegen nicht gefunden.' });
+  if (!darfBearbeiten(req.user, a)) {
+    return res.status(403).json({ error: 'Dieses Anliegen darfst du nicht ändern.' });
+  }
+
+  const kategorie = KATEGORIEN.includes(req.body?.kategorie) ? req.body.kategorie : null;
+  const titel = text(req.body?.titel, 200);
+  if (!kategorie) return res.status(400).json({ error: 'Bitte eine Kategorie wählen.' });
+  if (!titel) return res.status(400).json({ error: 'Bitte gib einen Titel an.' });
+
+  // Veröffentlichen-als nur ändern, wenn es mitgeschickt wurde.
+  let orgId = a.org_id;
+  if ('alsOrg' in (req.body ?? {})) {
+    orgId = req.body.alsOrg ? Number(req.body.alsOrg) : null;
+    if (orgId && !darfAlsOrgPosten(req.user.id, orgId)) {
+      return res.status(403).json({ error: 'Du darfst nicht im Namen dieser Organisation posten.' });
+    }
+  }
+
+  db.prepare(`
+    UPDATE anliegen SET cat=?, title=?, text=?, need=?, link_url=?, link_title=?, org_id=?
+    WHERE id = ?
+  `).run(
+    kategorie, titel, text(req.body?.text, 5000),
+    Math.max(0, Math.min(999, Number(req.body?.bedarf) || 0)),
+    text(req.body?.linkUrl, 500), text(req.body?.linkTitel, 200), orgId, id,
+  );
+
+  const row = db.prepare(`${BASIS} AND a.id = @id`).get({ me: req.user.id, id });
+  res.json({ anliegen: baueAnliegen(row, req.user) });
+});
+
 // ---------- Eigenes Anliegen zurückziehen ----------
 
 anliegenRouter.delete('/:id', requireActive, (req, res) => {
   const id = Number(req.params.id);
   const a = db.prepare(`SELECT * FROM anliegen WHERE id = ?`).get(id);
   if (!a) return res.status(404).json({ error: 'Anliegen nicht gefunden.' });
-  if (a.user_id !== req.user.id && !req.user.is_admin) {
+  if (!darfBearbeiten(req.user, a)) {
     return res.status(403).json({ error: 'Das ist nicht dein Beitrag.' });
   }
   db.prepare(`UPDATE anliegen SET status='hidden' WHERE id = ?`).run(id);

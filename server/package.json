@@ -8,9 +8,10 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "test": "node tests/konten.js && node tests/inhalte.js",
+    "test": "node tests/konten.js && node tests/inhalte.js && node tests/loecher.js",
     "test:konten": "node tests/konten.js",
-    "test:inhalte": "node tests/inhalte.js"
+    "test:inhalte": "node tests/inhalte.js",
+    "test:loecher": "node tests/loecher.js"
   },
   "engines": {
     "node": ">=22 <24"

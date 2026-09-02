@@ -146,8 +146,35 @@
       <h2 id="profilName"></h2>
       <p class="klein" id="profilInfo"></p>
       <div class="knoepfe">
+        <button class="leer" id="zuPasswort">Passwort ändern</button>
         <button class="leer" id="abmelden">Abmelden</button>
       </div>
+
+      <form id="fPasswort" hidden>
+        <label for="p-alt">Bisheriges Passwort</label>
+        <input id="p-alt" type="password" autocomplete="current-password" required>
+        <label for="p-neu">Neues Passwort <span class="klein">(mindestens 8 Zeichen)</span></label>
+        <input id="p-neu" type="password" autocomplete="new-password" minlength="8" required>
+        <div class="knoepfe">
+          <button type="submit">Speichern</button>
+          <button type="button" class="leer" id="passwortAbbrechen">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="karte" id="meldungenKarte" hidden>
+      <h2>Meldungen</h2>
+      <p class="klein" id="meldungenZaehler"></p>
+      <div class="filter" id="fMeldungen">
+        <button data-erledigt="0" aria-selected="true">Offen</button>
+        <button data-erledigt="1" aria-selected="false">Erledigt</button>
+      </div>
+      <div id="meldungenListe"></div>
+    </div>
+
+    <div class="karte" id="verwalteKarte" hidden>
+      <h2>Von dir betreut</h2>
+      <div id="verwalteListe"></div>
     </div>
 
     <div class="karte" id="adminKarte" hidden>

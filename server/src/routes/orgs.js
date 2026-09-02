@@ -22,7 +22,8 @@ function darfVerwalten(user, org) {
   return !!m;
 }
 
-function baueOrg(row, userId, ausfuehrlich = false) {
+function baueOrg(row, user, ausfuehrlich = false) {
+  const userId = user?.id;
   const mitglied = db.prepare(`
     SELECT role, status FROM org_members WHERE org_id=? AND user_id=?
   `).get(row.id, userId);
@@ -40,6 +41,11 @@ function baueOrg(row, userId, ausfuehrlich = false) {
     meineRolle: mitglied?.status === 'active' ? mitglied.role : null,
     meinAntrag: mitglied?.status === 'pending' ? true : false,
     folgeIch: folgt,
+    darfVerwalten: darfVerwalten(user, row),
+    offeneAnfragen: darfVerwalten(user, row)
+      ? db.prepare(`SELECT COUNT(*) AS c FROM org_members WHERE org_id=? AND status='pending'`)
+          .get(row.id).c
+      : 0,
   };
   if (!ausfuehrlich) return basis;
 
@@ -71,13 +77,13 @@ orgsRouter.get('/', requireLogin, (req, res) => {
   const rows = art
     ? db.prepare(`SELECT * FROM orgs WHERE type = ? ORDER BY name`).all(art)
     : db.prepare(`SELECT * FROM orgs ORDER BY type, name`).all();
-  res.json({ orgs: rows.map((r) => baueOrg(r, req.user.id)) });
+  res.json({ orgs: rows.map((r) => baueOrg(r, req.user)) });
 });
 
 orgsRouter.get('/:id', requireLogin, (req, res) => {
   const row = db.prepare(`SELECT * FROM orgs WHERE id = ?`).get(Number(req.params.id));
   if (!row) return res.status(404).json({ error: 'Nicht gefunden.' });
-  res.json({ org: baueOrg(row, req.user.id, true) });
+  res.json({ org: baueOrg(row, req.user, true) });
 });
 
 // ---------- Folgen ----------
@@ -169,6 +175,25 @@ orgsRouter.delete('/:id/mitglieder/:userId', requireActive, (req, res) => {
   db.prepare(`DELETE FROM org_members WHERE org_id=? AND user_id=?`)
     .run(org.id, Number(req.params.userId));
   res.json({ ok: true });
+});
+
+// ---------- Welche Organisationen betreue ich? ----------
+//
+// Für die Startanzeige im Profil: Vereinsleitungen sehen dort, ob
+// Beitrittsanfragen offen sind.
+
+orgsRouter.get('/meine/verwalten', requireActive, (req, res) => {
+  const alle = db.prepare(`SELECT * FROM orgs ORDER BY type, name`).all();
+  const meine = alle.filter((o) => darfVerwalten(req.user, o));
+  res.json({
+    orgs: meine.map((o) => ({
+      id: o.id,
+      name: o.name,
+      art: o.type,
+      offeneAnfragen: db.prepare(
+        `SELECT COUNT(*) AS c FROM org_members WHERE org_id=? AND status='pending'`).get(o.id).c,
+    })),
+  });
 });
 
 // ---------- Wo darf ich im Namen posten? ----------
