@@ -1,13 +1,9 @@
 // Einstiegspunkt des Servers.
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import { migrate, dbInfo } from './db.js';
 import { healthRouter } from './routes/health.js';
-
-const here = path.dirname(fileURLToPath(import.meta.url));
 
 migrate();
 
@@ -24,7 +20,7 @@ app.use(cookieParser());
 app.use('/api', healthRouter);
 
 // Die Oberfläche wird als statische Datei ausgeliefert.
-app.use(express.static(path.resolve(here, '../../web')));
+app.use(express.static(config.webDir));
 
 // Unbekannte API-Pfade sollen JSON liefern, keine HTML-Fehlerseite.
 app.use('/api', (req, res) => {
@@ -36,4 +32,5 @@ app.listen(config.port, () => {
   console.log(`Krafttal-Server läuft auf Port ${config.port}`);
   console.log(`Datenbank: ${info.file} (${info.tables} Tabellen)`);
   console.log(`Adresse:   ${config.publicUrl}`);
+  console.log(`Oberfläche: ${config.webDir}`);
 });
