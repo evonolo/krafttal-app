@@ -197,6 +197,58 @@ async function main() {
   pruefe('krummes Datum abgelehnt',
     (await sepp.c('POST', '/api/events', { datum: '8.11.2026', kategorie:'fest', titel:'X' })).status === 400);
 
+  // ---------- Termine ändern und löschen ----------
+  console.log('\nTermine ändern und löschen');
+  const eigener = (await sepp.c('POST', '/api/events', {
+    datum: '2026-11-15', kategorie: 'kurs', titel: 'Erster Titel', ort: 'Musikheim',
+    zeit: '18:00', text: 'Erste Beschreibung',
+  })).body.event;
+  pruefe('eigener Termin ist als änderbar gekennzeichnet', eigener.darfBearbeiten === true);
+  pruefe('fremder Termin ist es nicht',
+    (await lisa.c('GET', `/api/events/${eigener.id}`)).body?.event?.darfBearbeiten === false);
+
+  const geaendert = await sepp.c('PUT', `/api/events/${eigener.id}`, {
+    datum: '2026-11-16', kategorie: 'fest', titel: 'Geänderter Titel',
+    ort: 'Dorfplatz', zeit: '19:30', text: 'Neue Beschreibung',
+  });
+  pruefe('ändern klappt', geaendert.status === 200, `Status ${geaendert.status}`);
+  pruefe('Titel ist geändert', geaendert.body?.event?.titel === 'Geänderter Titel');
+  pruefe('Datum ist geändert', geaendert.body?.event?.datum === '2026-11-16');
+  pruefe('Kategorie ist geändert', geaendert.body?.event?.kategorie === 'fest');
+  pruefe('Ort ist geändert', geaendert.body?.event?.ort === 'Dorfplatz');
+
+  pruefe('Fremde können nicht ändern',
+    (await lisa.c('PUT', `/api/events/${eigener.id}`,
+      { datum: '2026-12-01', kategorie: 'fest', titel: 'Fremd' })).status === 403);
+  pruefe('Fremde können nicht löschen',
+    (await lisa.c('DELETE', `/api/events/${eigener.id}`)).status === 403);
+  pruefe('krummes Datum wird auch beim Ändern abgelehnt',
+    (await sepp.c('PUT', `/api/events/${eigener.id}`,
+      { datum: '16.11.2026', kategorie: 'fest', titel: 'X' })).status === 400);
+  pruefe('leerer Titel wird beim Ändern abgelehnt',
+    (await sepp.c('PUT', `/api/events/${eigener.id}`,
+      { datum: '2026-11-16', kategorie: 'fest', titel: '  ' })).status === 400);
+
+  // Zusagen müssen mitverschwinden, sonst bleiben verwaiste Einträge liegen.
+  await lisa.c('POST', `/api/events/${eigener.id}/komme`);
+  pruefe('Zusage vor dem Löschen vorhanden',
+    (await sepp.c('GET', `/api/events/${eigener.id}`)).body?.event?.kommen === 1);
+  pruefe('löschen klappt', (await sepp.c('DELETE', `/api/events/${eigener.id}`)).status === 200);
+  pruefe('gelöschter Termin ist weg',
+    (await sepp.c('GET', `/api/events/${eigener.id}`)).status === 404);
+  pruefe('Zusagen des gelöschten Termins sind mit weg',
+    !(await sepp.c('GET', '/api/events')).body?.events?.some(e => e.id === eigener.id));
+
+  // Das Team darf auch fremde Termine aufräumen.
+  const vonLisa = (await lisa.c('POST', '/api/events', {
+    datum: '2026-11-20', kategorie: 'verein', titel: 'Von Lisa',
+  })).body.event;
+  pruefe('Team darf fremde Termine ändern',
+    (await admin('PUT', `/api/events/${vonLisa.id}`,
+      { datum: '2026-11-21', kategorie: 'verein', titel: 'Vom Team geändert' })).status === 200);
+  pruefe('Team darf fremde Termine löschen',
+    (await admin('DELETE', `/api/events/${vonLisa.id}`)).status === 200);
+
   // ---------- Wartende ----------
   console.log('\nWartende');
   const warte = client();

@@ -171,11 +171,11 @@ async function oeffneAnliegen(id) {
       ${a.zusagen.length ? `<p class="klein">Dabei: ${a.zusagen.map(esc).join(', ')}</p>` : ''}
 
       <div class="knoepfe">
-        ${!a.eigenes ? `<button class="klein ${a.ichDabei ? 'leer' : ''}" data-tu="zusage" data-id="${a.id}">
+        ${!a.eigenes ? `<button class="kompakt ${a.ichDabei ? 'leer' : ''}" data-tu="zusage" data-id="${a.id}">
           ${a.ichDabei ? 'Doch nicht' : 'Ich bin dabei'}</button>` : ''}
-        ${!a.eigenes && !a.abgelehnt ? `<button class="klein leer" data-tu="absage" data-id="${a.id}">Absagen</button>` : ''}
-        ${a.abgelehnt ? `<button class="klein leer" data-tu="zurueckholen" data-id="${a.id}">Zurückholen</button>` : ''}
-        ${a.eigenes ? `<button class="klein warn" data-tu="zurueckziehen" data-id="${a.id}">Zurückziehen</button>` : ''}
+        ${!a.eigenes && !a.abgelehnt ? `<button class="kompakt leer" data-tu="absage" data-id="${a.id}">Absagen</button>` : ''}
+        ${a.abgelehnt ? `<button class="kompakt leer" data-tu="zurueckholen" data-id="${a.id}">Zurückholen</button>` : ''}
+        ${a.eigenes ? `<button class="kompakt warn" data-tu="zurueckziehen" data-id="${a.id}">Zurückziehen</button>` : ''}
       </div>
 
       <h3 style="margin-top:1.2rem">Kommentare</h3>
@@ -183,7 +183,7 @@ async function oeffneAnliegen(id) {
       ${alsOrg}
       <div style="display:flex;gap:.4rem;margin-top:.5rem">
         <input id="kText" placeholder="Etwas dazu schreiben…" style="flex:1">
-        <button class="klein" data-tu="kommentar" data-id="${a.id}">Senden</button>
+        <button class="kompakt" data-tu="kommentar" data-id="${a.id}">Senden</button>
       </div>
       <button class="text" data-tu="melden" data-id="${a.id}">Beitrag melden</button>
     `);
@@ -272,8 +272,11 @@ async function oeffneTermin(id) {
       ${e.text ? `<p>${linkify(e.text)}</p>` : ''}
       <p class="klein">${e.kommen} ${e.kommen === 1 ? 'Person kommt' : 'Personen kommen'}</p>
       <div class="knoepfe">
-        <button class="klein ${e.ichKomme ? 'leer' : ''}" data-tu="komme" data-id="${e.id}">
+        <button class="kompakt ${e.ichKomme ? 'leer' : ''}" data-tu="komme" data-id="${e.id}">
           ${e.ichKomme ? 'Doch nicht' : 'Ich komme'}</button>
+        ${e.darfBearbeiten ? `
+          <button class="kompakt leer" data-tu="terminBearbeiten" data-id="${e.id}">Bearbeiten</button>
+          <button class="kompakt warn" data-tu="terminLoeschen" data-id="${e.id}">Löschen</button>` : ''}
       </div>`);
   } catch (err) { melde(err.message); }
 }
@@ -319,12 +322,12 @@ async function oeffneOrg(id) {
         ${o.dktPosten.map((p) => esc(p.name)).join(', ')}</p>` : ''}
       <div class="knoepfe">
         ${o.meineRolle
-          ? `<button class="klein leer" data-tu="austreten" data-id="${o.id}">Austreten</button>`
+          ? `<button class="kompakt leer" data-tu="austreten" data-id="${o.id}">Austreten</button>`
           : o.meinAntrag
-            ? `<button class="klein leer" data-tu="austreten" data-id="${o.id}">Anfrage zurückziehen</button>`
-            : `<button class="klein" data-tu="beitreten" data-id="${o.id}">
+            ? `<button class="kompakt leer" data-tu="austreten" data-id="${o.id}">Anfrage zurückziehen</button>`
+            : `<button class="kompakt" data-tu="beitreten" data-id="${o.id}">
                  ${istVerein ? 'Mitglied werden' : 'Zugehörigkeit anfragen'}</button>`}
-        <button class="klein leer" data-tu="folgen" data-id="${o.id}">
+        <button class="kompakt leer" data-tu="folgen" data-id="${o.id}">
           ${o.folgeIch ? 'Nicht mehr folgen' : 'Folgen'}</button>
       </div>
       <p class="mini">${istVerein
@@ -364,12 +367,12 @@ function adminZeile(u) {
   const zeilen = [u.email, u.adresse, u.telefon, u.rolle].filter(Boolean).map(esc).join(' · ');
 
   let k = '';
-  if (u.status === 'pending') k += `<button class="klein" data-au="freischalten" data-id="${u.id}">Freischalten</button>`;
-  if (u.status === 'blocked') k += `<button class="klein" data-au="entsperren" data-id="${u.id}">Entsperren</button>`;
-  if (u.status === 'active' && !selbst) k += `<button class="klein warn" data-au="sperren" data-id="${u.id}">Sperren</button>`;
+  if (u.status === 'pending') k += `<button class="kompakt" data-au="freischalten" data-id="${u.id}">Freischalten</button>`;
+  if (u.status === 'blocked') k += `<button class="kompakt" data-au="entsperren" data-id="${u.id}">Entsperren</button>`;
+  if (u.status === 'active' && !selbst) k += `<button class="kompakt warn" data-au="sperren" data-id="${u.id}">Sperren</button>`;
   if (u.status === 'active') k += u.admin
-    ? `<button class="klein leer" data-au="absetzen" data-id="${u.id}">Aus dem Team</button>`
-    : `<button class="klein zweit" data-au="ernennen" data-id="${u.id}">Ins Team</button>`;
+    ? `<button class="kompakt leer" data-au="absetzen" data-id="${u.id}">Aus dem Team</button>`
+    : `<button class="kompakt zweit" data-au="ernennen" data-id="${u.id}">Ins Team</button>`;
 
   return `<div class="kommentar">
     <div class="kopfzeile"><b>${esc(u.name)}${selbst ? ' (du)' : ''}</b>
@@ -421,31 +424,52 @@ function formularNeuesAnliegen() {
     </div>`);
 }
 
-function formularNeuerTermin() {
+// Dasselbe Formular fuer neue und bestehende Termine. Ohne Argument leer,
+// mit Termin vorausgefuellt.
+function formularTermin(e = null) {
+  const wert = (v) => esc(v ?? '');
+  const gewaehlt = (v, soll) => (v === soll ? ' selected' : '');
   const alsOrg = zustand.meineOrgs.length
     ? `<label>Veranstalter</label>
        <select id="t-org">
          <option value="">${esc(zustand.ich.name)}</option>
-         ${zustand.meineOrgs.map((o) => `<option value="${o.id}">${esc(o.name)}</option>`).join('')}
+         ${zustand.meineOrgs.map((o) =>
+           `<option value="${o.id}"${e && e.orgId === o.id ? ' selected' : ''}>${esc(o.name)}</option>`).join('')}
        </select>` : '';
   blattAuf(`
-    <h2>Neuer Termin</h2>
-    <label>Datum</label><input id="t-datum" type="date">
+    <h2>${e ? 'Termin bearbeiten' : 'Neuer Termin'}</h2>
+    <label>Datum</label><input id="t-datum" type="date" value="${wert(e?.datum)}">
     <label>Uhrzeit <span class="klein">(als Text, z. B. „ab 18 Uhr")</span></label>
-    <input id="t-zeit" maxlength="60">
+    <input id="t-zeit" maxlength="60" value="${wert(e?.zeit)}">
     <label>Art</label>
     <select id="t-kat">
-      <option value="fest">Fest</option><option value="verein">Verein</option>
-      <option value="gemeinde">Gemeinde</option><option value="kurs">Kurs</option>
+      <option value="fest"${gewaehlt(e?.kategorie,'fest')}>Fest</option>
+      <option value="verein"${gewaehlt(e?.kategorie,'verein')}>Verein</option>
+      <option value="gemeinde"${gewaehlt(e?.kategorie,'gemeinde')}>Gemeinde</option>
+      <option value="kurs"${gewaehlt(e?.kategorie,'kurs')}>Kurs</option>
     </select>
-    <label>Titel</label><input id="t-titel" maxlength="200">
-    <label>Ort</label><input id="t-ort" maxlength="200">
-    <label>Beschreibung</label><textarea id="t-text"></textarea>
+    <label>Titel</label><input id="t-titel" maxlength="200" value="${wert(e?.titel)}">
+    <label>Ort</label><input id="t-ort" maxlength="200" value="${wert(e?.ort)}">
+    <label>Beschreibung</label><textarea id="t-text">${wert(e?.text)}</textarea>
     ${alsOrg}
     <div class="knoepfe">
-      <button data-tu="anlegenTermin">Veröffentlichen</button>
+      <button data-tu="${e ? 'speichernTermin' : 'anlegenTermin'}"${e ? ` data-id="${e.id}"` : ''}>
+        ${e ? 'Änderung speichern' : 'Veröffentlichen'}</button>
       <button class="leer" data-tu="blattZu">Abbrechen</button>
     </div>`);
+}
+
+// Liest die Felder des Terminformulars aus.
+function terminFelder() {
+  return {
+    datum: $('#t-datum').value,
+    zeit: $('#t-zeit').value,
+    kategorie: $('#t-kat').value,
+    titel: $('#t-titel').value,
+    ort: $('#t-ort').value,
+    text: $('#t-text').value,
+    alsOrg: $('#t-org')?.value || null,
+  };
 }
 
 // ---------- Ereignisse ----------
@@ -558,7 +582,7 @@ $('#orgListe').onclick = (e) => {
 };
 
 $('#neuKnopf').onclick = () => {
-  if (zustand.tab === 'kalender') formularNeuerTermin();
+  if (zustand.tab === 'kalender') formularTermin();
   else formularNeuesAnliegen();
 };
 
@@ -616,16 +640,28 @@ $('#blatt').addEventListener('click', async (e) => {
       blattZu();
       return ladeAnliegen();
     }
+    if (tu === 'terminBearbeiten') {
+      const { event } = await api('GET', '/api/events/' + id);
+      return formularTermin(event);
+    }
+    if (tu === 'terminLoeschen') {
+      if (!confirm('Diesen Termin wirklich löschen? Auch die Zusagen sind dann weg.')) {
+        b.disabled = false;
+        return;
+      }
+      await api('DELETE', '/api/events/' + id);
+      blattZu();
+      await ladeTermine();
+      return melde('Termin gelöscht.', 'gut');
+    }
+    if (tu === 'speichernTermin') {
+      await api('PUT', '/api/events/' + id, terminFelder());
+      blattZu();
+      await ladeTermine();
+      return melde('Änderung gespeichert.', 'gut');
+    }
     if (tu === 'anlegenTermin') {
-      await api('POST', '/api/events', {
-        datum: $('#t-datum').value,
-        zeit: $('#t-zeit').value,
-        kategorie: $('#t-kat').value,
-        titel: $('#t-titel').value,
-        ort: $('#t-ort').value,
-        text: $('#t-text').value,
-        alsOrg: $('#t-org')?.value || null,
-      });
+      await api('POST', '/api/events', terminFelder());
       blattZu();
       return ladeTermine();
     }

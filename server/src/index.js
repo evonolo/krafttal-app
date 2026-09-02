@@ -2,7 +2,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import { config } from './config.js';
-import { migrate, dbInfo } from './db.js';
+import { migrate, dbInfo, closeDb } from './db.js';
 import { healthRouter } from './routes/health.js';
 import { authRouter } from './routes/auth.js';
 import { adminRouter } from './routes/admin.js';
@@ -47,10 +47,24 @@ app.use('/api', (req, res) => {
 purgeExpiredSessions();
 setInterval(purgeExpiredSessions, 24 * 60 * 60 * 1000).unref();
 
-app.listen(config.port, () => {
+const server = app.listen(config.port, () => {
   const info = dbInfo();
   console.log(`Krafttal-Server läuft auf Port ${config.port}`);
   console.log(`Datenbank: ${info.file} (${info.tables} Tabellen)`);
   console.log(`Adresse:   ${config.publicUrl}`);
   console.log(`Oberfläche: ${config.webDir}`);
 });
+
+// Docker schickt beim Stoppen SIGTERM. Ohne Behandlung wird der Prozess
+// abgeschossen und die Datenbank bleibt unsauber zurück.
+for (const signal of ['SIGTERM', 'SIGINT']) {
+  process.on(signal, () => {
+    console.log(`${signal} empfangen, fahre herunter.`);
+    server.close(() => {
+      closeDb();
+      process.exit(0);
+    });
+    // Falls noch Verbindungen offen sind: nach fünf Sekunden trotzdem beenden.
+    setTimeout(() => { closeDb(); process.exit(0); }, 5000).unref();
+  });
+}

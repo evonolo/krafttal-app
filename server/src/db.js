@@ -25,6 +25,23 @@ export function migrate() {
   db.exec(sql);
 }
 
+// Sauber schließen, wenn der Container gestoppt wird.
+//
+// SQLite schreibt frische Änderungen zuerst in die Begleitdatei krafttal.db-wal
+// und erst später in die Hauptdatei. Wird der Prozess einfach abgeschossen,
+// bleiben die letzten Änderungen dort liegen. Für SQLite ist das
+// unproblematisch - beim nächsten Start holt es sie sich von dort. Wer aber
+// nur die Hauptdatei sichert, dem fehlen sie.
+//
+// Deshalb: beim Stoppen die Begleitdatei in die Hauptdatei überführen und
+// die Datenbank ordentlich schließen.
+export function closeDb() {
+  try {
+    db.pragma('wal_checkpoint(TRUNCATE)');
+    db.close();
+  } catch { /* beim Herunterfahren nicht mehr wichtig */ }
+}
+
 export function dbInfo() {
   const tables = db
     .prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name`)
