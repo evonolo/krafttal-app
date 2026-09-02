@@ -1,5 +1,9 @@
 # Zweistufiger Bau.
 #
+# Node 22 ist die LTS-Version und wird lange gepflegt - richtig für etwas,
+# das auf dem NAS unbeaufsichtigt durchläuft. Mit Node 24 stürzt
+# better-sqlite3 beim Aufräumen seiner Datenbankbefehle ab.
+#
 # Stufe 1 übersetzt better-sqlite3 selbst. Das ist nötig, weil es nicht für
 # jede Kombination aus Node-Version und Prozessortyp fertige Binärdateien
 # gibt - auf dem Mac (ARM) fehlen sie, auf der Synology (Intel) je nach
@@ -8,7 +12,7 @@
 # Stufe 2 nimmt nur das fertige Ergebnis. Compiler und Python bleiben
 # zurück, das Endimage bleibt schlank.
 
-FROM node:24-bookworm-slim AS build
+FROM node:22-bookworm-slim AS build
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends python3 make g++ \
@@ -19,7 +23,7 @@ COPY server/package.json server/package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 
-FROM node:24-bookworm-slim
+FROM node:22-bookworm-slim
 
 ENV NODE_ENV=production
 WORKDIR /app

@@ -6,9 +6,14 @@ import { migrate, dbInfo } from './db.js';
 import { healthRouter } from './routes/health.js';
 import { authRouter } from './routes/auth.js';
 import { adminRouter } from './routes/admin.js';
+import { anliegenRouter } from './routes/anliegen.js';
+import { eventsRouter } from './routes/events.js';
+import { orgsRouter } from './routes/orgs.js';
+import { seed } from './seed.js';
 import { loadUser, purgeExpiredSessions } from './auth.js';
 
 migrate();
+seed();
 
 const app = express();
 
@@ -26,6 +31,9 @@ app.use(loadUser);
 app.use('/api', healthRouter);
 app.use('/api', authRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/anliegen', anliegenRouter);
+app.use('/api/events', eventsRouter);
+app.use('/api/orgs', orgsRouter);
 
 // Die Oberfläche wird als statische Datei ausgeliefert.
 app.use(express.static(config.webDir));

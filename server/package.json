@@ -11,7 +11,7 @@
     "test": "node tests/konten.js"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22 <24"
   },
   "dependencies": {
     "better-sqlite3": "^11.7.0",
