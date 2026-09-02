@@ -239,6 +239,26 @@ async function main() {
   pruefe('Zusagen des gelöschten Termins sind mit weg',
     !(await sepp.c('GET', '/api/events')).body?.events?.some(e => e.id === eigener.id));
 
+  // Posting-Recht ist kein Bearbeitungsrecht: Zwei Leute dürfen im Namen
+  // desselben Vereins posten, aber nicht gegenseitig ihre Einträge ändern.
+  await admin('POST', `/api/orgs/${musik.id}/beitreten`);
+  await sepp.c('POST', `/api/orgs/${musik.id}/beitreten`);
+  await admin('POST', `/api/orgs/${musik.id}/mitglieder/${sepp.id}`, { rolle: 'poster' });
+  const vereinsTermin = (await sepp.c('POST', '/api/events', {
+    datum: '2026-12-05', kategorie: 'verein', titel: 'Adventkonzert', alsOrg: musik.id,
+  })).body.event;
+  pruefe('Termin läuft auf den Verein',
+    vereinsTermin.veranstalter === 'Bundesmusikkapelle Kelchsau');
+  pruefe('Eintragender darf seinen Vereinstermin ändern', vereinsTermin.darfBearbeiten === true);
+  pruefe('anderes Vereinsmitglied mit Posting-Recht sieht kein Bearbeitungsrecht',
+    (await lisa.c('GET', `/api/events/${vereinsTermin.id}`)).body?.event?.darfBearbeiten === false);
+  pruefe('anderes Vereinsmitglied mit Posting-Recht darf nicht ändern',
+    (await lisa.c('PUT', `/api/events/${vereinsTermin.id}`,
+      { datum: '2026-12-06', kategorie: 'verein', titel: 'Fremd geändert' })).status === 403);
+  pruefe('anderes Vereinsmitglied mit Posting-Recht darf nicht löschen',
+    (await lisa.c('DELETE', `/api/events/${vereinsTermin.id}`)).status === 403);
+  await sepp.c('DELETE', `/api/events/${vereinsTermin.id}`);
+
   // Das Team darf auch fremde Termine aufräumen.
   const vonLisa = (await lisa.c('POST', '/api/events', {
     datum: '2026-11-20', kategorie: 'verein', titel: 'Von Lisa',

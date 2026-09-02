@@ -10,20 +10,17 @@ const KATEGORIEN = ['fest', 'verein', 'gemeinde', 'kurs'];
 const text = (v, max) => String(v ?? '').trim().slice(0, max);
 const istDatum = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s);
 
-// Wer einen Termin eingetragen hat, darf ihn auch ändern und löschen.
-// Ebenso das Krafttal-Team und - bei Terminen im Namen einer Organisation -
-// alle, die für diese Organisation posten dürfen.
+// Ändern und löschen darf ausschließlich:
+//   - wer den Termin eingetragen hat
+//   - das Krafttal-Team
+//
+// Bewusst NICHT die übrigen Personen mit Posting-Recht der veranstaltenden
+// Organisation. Wer im Namen der Musikkapelle posten darf, soll deshalb noch
+// lange nicht die Einträge der anderen Musikanten ändern können.
 export function darfBearbeiten(user, row) {
   if (!user || user.status !== 'active') return false;
   if (user.is_admin) return true;
-  if (row.user_id && row.user_id === user.id) return true;
-  if (row.org_id) {
-    return !!db.prepare(`
-      SELECT 1 FROM org_members
-      WHERE org_id = ? AND user_id = ? AND status = 'active' AND role IN ('poster','admin')
-    `).get(row.org_id, user.id);
-  }
-  return false;
+  return !!row.user_id && row.user_id === user.id;
 }
 
 function baueEvent(row, user) {
